@@ -1,0 +1,7 @@
+Low Stock Alert
+
+Product: {{ product_name }}
+Category: {{ category }}
+Current Stock: {{ current_stock }} units
+
+Please take necessary action to replenish the stock.
