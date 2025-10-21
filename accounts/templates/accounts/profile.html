@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="rounded-circle img-fluid mb-3" style="max-width: 150px;">
+                    {% else %}
+                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 150px; height: 150px;">
+                            <i class="bi bi-person-fill" style="font-size: 4rem;"></i>
+                        </div>
+                    {% endif %}
+                    <h3 class="card-title">{{ user.get_full_name|default:user.email }}</h3>
+                    <p class="text-muted">{{ user.get_role_display }}</p>
+                    <a href="{% url 'profile_update' %}" class="btn btn-primary">
+                        <i class="bi bi-pencil-square"></i> Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Profile Details</h4>
+                    <hr>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Full Name</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                            {{ user.get_full_name|default:"Not set" }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Email</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                            {{ user.email }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Phone</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                            {{ user.phone_number|default:"Not set" }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Address</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                            {{ user.address|default:"Not set"|linebreaks }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Date of Birth</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                            {{ user.date_of_birth|date:"F j, Y"|default:"Not set" }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Member Since</h6>
+                        </div>
+                        <div class="col-sm-9 text-muted">
+                            {{ user.date_joined|date:"F j, Y" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

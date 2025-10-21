@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from .models import Product
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import get_user_model
 from . import utils
 import json
 
@@ -52,6 +53,21 @@ def checkout(request):
                     'success': False,
                     'error': 'Please fill in all required fields'
                 })
+
+            # Update user profile if requested
+            if request.user.is_authenticated and customer_data.get('updateProfile'):
+                User = get_user_model()
+                user = User.objects.get(id=request.user.id)
+                
+                # Split full name into first_name and last_name
+                full_name = customer_data['fullName'].split(maxsplit=1)
+                user.first_name = full_name[0]
+                user.last_name = full_name[1] if len(full_name) > 1 else ''
+                
+                user.phone_number = customer_data['phone']
+                user.address = customer_data['deliveryAddress']
+                # Don't update email as it might require verification
+                user.save()
             
             # Process order (you can save to database here)
             order_summary = {

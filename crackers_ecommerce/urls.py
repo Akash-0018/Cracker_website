@@ -18,11 +18,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth.decorators import login_required
+from inventory.views import home
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('allauth.urls')),
+    path('accounts/', include('accounts.urls')),  # Add this line for profile URLs
     path('inventory/', include('inventory.urls', namespace='inventory_sub')),
-    path('', include('inventory.urls', namespace='inventory')),  # Make inventory the default home page
+    path('', login_required(home), name='home'),  # Protected home page
 ]
 
 # Serve media files in development
