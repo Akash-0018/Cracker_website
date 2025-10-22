@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Low Stock Alert - Kannan Crackers</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Enhanced Crackers Animation */
+        .crackers-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .cracker {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 1;
+        }
+        
+        .cracker::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffcc00, #ff6b35, #ff0000);
+            animation: cracker-explode 2s ease-out forwards;
+            box-shadow: 0 0 20px #ffcc00;
+        }
+        
+        @keyframes cracker-explode {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+                filter: blur(0px);
+            }
+            30% {
+                transform: scale(1.2) rotate(180deg);
+                opacity: 1;
+                filter: blur(1px);
+            }
+            100% {
+                transform: scale(3) rotate(360deg);
+                opacity: 0;
+                filter: blur(3px);
+            }
+        }
+        
+        .spark {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ffcc00;
+            box-shadow: 0 0 15px 3px #ffcc00;
+            opacity: 0;
+            animation: spark-fall 3s ease-out forwards;
+            z-index: 2;
+        }
+        
+        @keyframes spark-fall {
+            0% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translate(var(--spark-x), var(--spark-y)) rotate(180deg) scale(0.8);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(calc(var(--spark-x) * 2), calc(var(--spark-y) * 2)) rotate(360deg) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        .firework {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: firework-launch 3s ease-out forwards;
+            z-index: 3;
+        }
+        
+        @keyframes firework-launch {
+            0% {
+                transform: translateY(100vh) scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            40% {
+                transform: translateY(30vh) scale(1) rotate(180deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(0) scale(1.5) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Header with Warning Animation */
+        .header {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(220, 53, 69, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: pulse-warning 2s infinite;
+        }
+        
+        @keyframes pulse-warning {
+            0%, 100% {
+                box-shadow: 0 10px 30px rgba(220, 53, 69, 0.3);
+            }
+            50% {
+                box-shadow: 0 10px 40px rgba(220, 53, 69, 0.6), 0 0 30px rgba(220, 53, 69, 0.4);
+            }
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shine 3s infinite linear;
+        }
+        
+        @keyframes shine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 800;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        /* Alert Details */
+        .alert-details {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+        
+        .alert-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .alert-title h2 {
+            color: #dc3545;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .alert-title p {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Enhanced Stock Info */
+        .stock-info {
+            background: linear-gradient(135deg, #f8d7da, #f1b0b7);
+            border: 3px solid #f5c6cb;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.2);
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+        }
+        
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-icon {
+            width: 50px;
+            height: 50px;
+            background: #dc3545;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .info-content {
+            flex: 1;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #721c24;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+        
+        .info-value {
+            color: #856404;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        /* Stock Level Indicator */
+        .stock-level {
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .level-title {
+            font-weight: 700;
+            color: #721c24;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .level-bar {
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .level-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc3545, #fd7e14);
+            border-radius: 15px;
+            transition: width 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .level-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 600;
+        }
+        
+        /* Action Steps */
+        .action-steps {
+            background: rgba(13, 110, 253, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-left: 5px solid #007bff;
+        }
+        
+        .action-steps h3 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .step {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .step-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .step-text {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* Urgency Indicator */
+        .urgency-indicator {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .urgency-icon {
+            font-size: 3rem;
+            color: #fd7e14;
+            margin-bottom: 15px;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .urgency-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .urgency-subtext {
+            color: #856404;
+            font-size: 1.1rem;
+        }
+        
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            color: white;
+        }
+        
+        .footer p {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .contact-item i {
+            color: #ffcc00;
+            font-size: 1.2rem;
+        }
+        
+        /* Celebration Button */
+        .celebration-btn {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #ffcc00, #ff6b35);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .celebration-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.6);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .alert-title h2 {
+                font-size: 1.6rem;
+            }
+            
+            .steps {
+                flex-direction: column;
+            }
+            
+            .contact-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .alert-details {
+                padding: 20px;
+            }
+            
+            .info-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+        }
+        
+        /* High Contrast Support */
+        @media (prefers-contrast: high) {
+            .alert-details {
+                border: 2px solid #000;
+            }
+            
+            .stock-info {
+                border: 3px solid #dc3545;
+            }
+            
+            .action-steps {
+                border: 2px solid #007bff;
+            }
+        }
+        
+        /* Reduced Motion Support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Crackers Animation Container -->
+    <div class="crackers-container" id="crackersContainer"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <i class="fas fa-exclamation-triangle"></i>
+                Low Stock Alert!
+                <i class="fas fa-exclamation-triangle"></i>
+            </h1>
+            <p>Immediate attention required for inventory management</p>
+        </div>
+
+        <!-- Celebration Button -->
+        <button class="celebration-btn" id="celebrationBtn">
+            <i class="fas fa-fire"></i> Test Celebration
+        </button>
+
+        <div class="alert-details">
+            <!-- Alert Title -->
+            <div class="alert-title">
+                <h2>
+                    <i class="fas fa-box-open"></i>
+                    Stock Running Low!
+                </h2>
+                <p>This product needs to be restocked immediately to meet customer demand</p>
+            </div>
+
+            <!-- Stock Level Indicator -->
+            <div class="stock-level">
+                <div class="level-title">Stock Level Status</div>
+                <div class="level-bar">
+                    <div class="level-fill" id="stockLevelFill" style="width: 20%;">
+                        LOW
+                    </div>
+                </div>
+                <div class="level-labels">
+                    <span>Empty</span>
+                    <span>Critical</span>
+                    <span>Low</span>
+                    <span>Medium</span>
+                    <span>Full</span>
+                </div>
+            </div>
+
+            <!-- Enhanced Stock Info -->
+            <div class="stock-info">
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Product Name</div>
+                        <div class="info-value">{{ product_name }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Category</div>
+                        <div class="info-value">{{ category }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-label">Current Stock</div>
+                        <div class="info-value" style="color: #dc3545;">{{ current_stock }} units</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Urgency Indicator -->
+            <div class="urgency-indicator">
+                <div class="urgency-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="urgency-text">URGENT ACTION REQUIRED</div>
+                <div class="urgency-subtext">This product will be out of stock soon if not replenished</div>
+            </div>
+
+            <!-- Action Steps -->
+            <div class="action-steps">
+                <h3>
+                    <i class="fas fa-tasks"></i>
+                    Required Actions
+                </h3>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="step-text">Contact Supplier</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <div class="step-text">Place Order</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <div class="step-text">Update Inventory</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Important Notes -->
+            <div style="background: #d4edda; padding: 20px; border-radius: 10px; border-left: 5px solid #28a745; margin: 25px 0;">
+                <h4 style="color: #155724; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-lightbulb"></i>
+                    Quick Tips
+                </h4>
+                <ul style="color: #155724; padding-left: 20px;">
+                    <li>Check sales trends for this product</li>
+                    <li>Review minimum stock levels</li>
+                    <li>Consider seasonal demand</li>
+                    <li>Update reorder points if needed</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>This alert was generated automatically by Kannan Crackers Inventory System</p>
+            
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <span>Inventory Manager: +91 98765 43210</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>inventory@kannancrackers.com</span>
+                </div>
+            </div>
+            
+            <p style="margin-top: 25px; font-size: 1.2rem; font-weight: 600;">
+                Thank you for your prompt attention! 🚀
+            </p>
+        </div>
+    </div>
+
+
+</body>
+</html>

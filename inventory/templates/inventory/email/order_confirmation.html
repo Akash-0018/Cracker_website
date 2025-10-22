@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Kannan Crackers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Enhanced Crackers Animation */
+        .crackers-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .cracker {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 1;
+        }
+        
+        .cracker::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffcc00, #ff6b35, #ff0000);
+            animation: cracker-explode 2s ease-out forwards;
+            box-shadow: 0 0 20px #ffcc00;
+        }
+        
+        @keyframes cracker-explode {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+                filter: blur(0px);
+            }
+            30% {
+                transform: scale(1.2) rotate(180deg);
+                opacity: 1;
+                filter: blur(1px);
+            }
+            100% {
+                transform: scale(3) rotate(360deg);
+                opacity: 0;
+                filter: blur(3px);
+            }
+        }
+        
+        .spark {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ffcc00;
+            box-shadow: 0 0 15px 3px #ffcc00;
+            opacity: 0;
+            animation: spark-fall 3s ease-out forwards;
+            z-index: 2;
+        }
+        
+        @keyframes spark-fall {
+            0% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translate(var(--spark-x), var(--spark-y)) rotate(180deg) scale(0.8);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(calc(var(--spark-x) * 2), calc(var(--spark-y) * 2)) rotate(360deg) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        .firework {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: firework-launch 3s ease-out forwards;
+            z-index: 3;
+        }
+        
+        @keyframes firework-launch {
+            0% {
+                transform: translateY(100vh) scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            40% {
+                transform: translateY(30vh) scale(1) rotate(180deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(0) scale(1.5) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Header with Celebration */
+        .header {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 123, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shine 3s infinite linear;
+        }
+        
+        @keyframes shine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 800;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        /* Success Animation */
+        .success-animation {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+        }
+        
+        .check-icon {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            border-radius: 50%;
+            box-sizing: content-box;
+            border: 4px solid #28a745;
+            animation: checkmark-appear 0.5s ease-in-out 0.5s forwards;
+            opacity: 0;
+            transform: scale(0.5);
+        }
+        
+        @keyframes checkmark-appear {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .icon-line {
+            height: 5px;
+            background-color: #28a745;
+            display: block;
+            border-radius: 2px;
+            position: absolute;
+            z-index: 10;
+        }
+        
+        .icon-line.line-tip {
+            top: 46px;
+            left: 14px;
+            width: 25px;
+            transform: rotate(45deg);
+            animation: icon-line-tip 0.5s ease-in-out;
+        }
+        
+        .icon-line.line-long {
+            top: 38px;
+            right: 8px;
+            width: 47px;
+            transform: rotate(-45deg);
+            animation: icon-line-long 0.5s ease-in-out;
+        }
+        
+        /* Order Details */
+        .order-details {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+        
+        .customer-greeting {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .customer-greeting h2 {
+            color: #007bff;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .customer-greeting p {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Visual Instructions */
+        .delivery-steps {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(13, 110, 253, 0.05);
+            border-radius: 15px;
+        }
+        
+        .step {
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .step-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+        }
+        
+        .step-text {
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+        
+        /* Enhanced Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        td {
+            font-size: 1rem;
+        }
+        
+        tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .total {
+            font-size: 1.4rem;
+            font-weight: 800;
+            text-align: right;
+            margin-top: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        /* Delivery Information */
+        .delivery-info {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-left: 5px solid #007bff;
+        }
+        
+        .delivery-info h3 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .delivery-info h3 i {
+            font-size: 1.6rem;
+        }
+        
+        .info-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(13, 110, 253, 0.05);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .info-item i {
+            color: #007bff;
+            font-size: 1.3rem;
+            width: 30px;
+        }
+        
+        .info-content {
+            flex: 1;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            color: white;
+        }
+        
+        .footer p {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .contact-item i {
+            color: #ffcc00;
+            font-size: 1.2rem;
+        }
+        
+        /* Celebration Button */
+        .celebration-btn {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #ffcc00, #ff6b35);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .celebration-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.6);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .customer-greeting h2 {
+                font-size: 1.6rem;
+            }
+            
+            .delivery-steps {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            table {
+                font-size: 0.9rem;
+            }
+            
+            th, td {
+                padding: 10px;
+            }
+            
+            .contact-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .order-details {
+                padding: 20px;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+        
+        /* High Contrast Support */
+        @media (prefers-contrast: high) {
+            .order-details {
+                border: 2px solid #000;
+            }
+            
+            .delivery-info {
+                border: 2px solid #007bff;
+            }
+            
+            table {
+                border: 2px solid #000;
+            }
+        }
+        
+        /* Reduced Motion Support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Crackers Animation Container -->
+    <div class="crackers-container" id="crackersContainer"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎉 Order Confirmed! 🎉</h1>
+            <p>Your celebration package is on the way!</p>
+        </div>
+
+        <!-- Success Animation -->
+        <div class="success-animation">
+            <div class="success-checkmark">
+                <div class="check-icon">
+                    <span class="icon-line line-tip"></span>
+                    <span class="icon-line line-long"></span>
+                </div>
+            </div>
+            <h2 style="color: white; margin-bottom: 10px;">Order Successful!</h2>
+            <p style="color: rgba(255,255,255,0.9);">We've received your order and are preparing it for delivery</p>
+        </div>
+
+        <!-- Celebration Button -->
+        <button class="celebration-btn" id="celebrationBtn">
+            🎆 Start Celebration!
+        </button>
+
+        <div class="order-details">
+            <!-- Customer Greeting -->
+            <div class="customer-greeting">
+                <h2>Thank you, {{ customer_name }}!</h2>
+                <p>We're excited to be part of your celebration with our premium crackers and fireworks.</p>
+            </div>
+
+            <!-- Delivery Steps -->
+            <div class="delivery-steps">
+                <div class="step">
+                    <div class="step-icon">📦</div>
+                    <div class="step-text">Order Packed</div>
+                </div>
+                <div class="step">
+                    <div class="step-icon">🚚</div>
+                    <div class="step-text">Out for Delivery</div>
+                </div>
+                <div class="step">
+                    <div class="step-icon">🎊</div>
+                    <div class="step-text">Celebration Time!</div>
+                </div>
+            </div>
+
+            <!-- Order Details -->
+            <h3 style="color: #007bff; margin-bottom: 20px; font-size: 1.4rem;">
+                📋 Your Order Details
+            </h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Firework Item</th>
+                        <th>Qty</th>
+                        <th>Price Each</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ items_html|safe }}
+                </tbody>
+            </table>
+            
+            <div class="total">
+                💰 Total Amount: {{ order_total }}
+            </div>
+
+            <!-- Delivery Information -->
+            <div class="delivery-info">
+                <h3>🏠 Delivery Information</h3>
+                
+                <div class="info-item">
+                    <i>📍</i>
+                    <div class="info-content">
+                        <div class="info-label">Delivery Address</div>
+                        <div class="info-value">{{ delivery_address }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <i>📞</i>
+                    <div class="info-content">
+                        <div class="info-label">Phone Number</div>
+                        <div class="info-value">{{ phone }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <i>✉️</i>
+                    <div class="info-content">
+                        <div class="info-label">Email Address</div>
+                        <div class="info-value">{{ email }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Important Notes -->
+            <div style="background: #fff3cd; padding: 20px; border-radius: 10px; border-left: 5px solid #ffc107; margin: 25px 0;">
+                <h4 style="color: #856404; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    ⚠️ Important Safety Notes
+                </h4>
+                <ul style="color: #856404; padding-left: 20px;">
+                    <li>Keep fireworks away from children</li>
+                    <li>Use in open spaces only</li>
+                    <li>Read instructions before use</li>
+                    <li>Keep water nearby for safety</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>If you have any questions about your order, please contact us:</p>
+            
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i>📞</i>
+                    <span>+91 98765 43210</span>
+                </div>
+                <div class="contact-item">
+                    <i>✉️</i>
+                    <span>help@kannancrackers.com</span>
+                </div>
+                <div class="contact-item">
+                    <i>🏪</i>
+                    <span>Open 9 AM - 9 PM</span>
+                </div>
+            </div>
+            
+            <p style="margin-top: 25px; font-size: 1.2rem; font-weight: 600;">
+                Thank you for choosing Kannan Crackers! 🎆
+            </p>
+            <p style="color: rgba(255,255,255,0.8);">
+                Wishing you a bright and joyful celebration! ✨
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enhanced Crackers animation
+            const crackersContainer = document.getElementById('crackersContainer');
+            const celebrationBtn = document.getElementById('celebrationBtn');
+            
+            function createEnhancedCracker() {
+                const cracker = document.createElement('div');
+                cracker.classList.add('cracker');
+                
+                // Random position with better distribution
+                const posX = 10 + Math.random() * 80;
+                const posY = 10 + Math.random() * 80;
+                
+                cracker.style.left = `${posX}%`;
+                cracker.style.top = `${posY}%`;
+                
+                // Random size variation
+                const size = 8 + Math.random() * 8;
+                cracker.style.width = `${size}px`;
+                cracker.style.height = `${size}px`;
+                
+                // Random delay for natural effect
+                const delay = Math.random() * 4;
+                cracker.style.animationDelay = `${delay}s`;
+                
+                crackersContainer.appendChild(cracker);
+                
+                // Enhanced sparks with better physics
+                setTimeout(() => {
+                    createEnhancedSparks(posX, posY, size);
+                }, 800);
+                
+                // Remove cracker after animation
+                setTimeout(() => {
+                    cracker.remove();
+                }, 2000);
+            }
+            
+            function createEnhancedSparks(x, y, baseSize) {
+                const sparkCount = 12 + Math.floor(Math.random() * 12);
+                
+                for (let i = 0; i < sparkCount; i++) {
+                    const spark = document.createElement('div');
+                    spark.classList.add('spark');
+                    
+                    spark.style.left = `${x}%`;
+                    spark.style.top = `${y}%`;
+                    
+                    // Enhanced spark physics
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 30 + Math.random() * 50;
+                    const sparkX = Math.cos(angle) * distance;
+                    const sparkY = Math.sin(angle) * distance;
+                    
+                    spark.style.setProperty('--spark-x', `${sparkX}px`);
+                    spark.style.setProperty('--spark-y', `${sparkY}px`);
+                    
+                    // Random spark size based on cracker size
+                    const sparkSize = baseSize * 0.4 + Math.random() * baseSize * 0.3;
+                    spark.style.width = `${sparkSize}px`;
+                    spark.style.height = `${sparkSize}px`;
+                    
+                    // Random color variation
+                    const colors = ['#ffcc00', '#ff6b35', '#ff0000', '#ffff00', '#ffa500'];
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    spark.style.background = color;
+                    spark.style.boxShadow = `0 0 15px 3px ${color}`;
+                    
+                    // Random delay and duration
+                    const delay = Math.random() * 0.8;
+                    const duration = 1.5 + Math.random() * 1.5;
+                    
+                    spark.style.animationDelay = `${delay}s`;
+                    spark.style.animationDuration = `${duration}s`;
+                    
+                    crackersContainer.appendChild(spark);
+                    
+                    // Remove spark after animation
+                    setTimeout(() => {
+                        spark.remove();
+                    }, (delay + duration) * 1000);
+                }
+            }
+            
+            function createEnhancedFirework() {
+                const firework = document.createElement('div');
+                firework.classList.add('firework');
+                
+                // Random position and enhanced color
+                const posX = Math.random() * 100;
+                const colors = [
+                    'radial-gradient(circle, #ffcc00, #ff6b35, #ff0000)',
+                    'radial-gradient(circle, #00ff00, #00cc00, #008800)',
+                    'radial-gradient(circle, #0000ff, #0000cc, #000088)',
+                    'radial-gradient(circle, #ff00ff, #cc00cc, #880088)',
+                    'radial-gradient(circle, #ffff00, #ffcc00, #ff9900)'
+                ];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                firework.style.left = `${posX}%`;
+                firework.style.background = color;
+                firework.style.boxShadow = `0 0 20px 5px ${color.split(',')[1].trim()}`;
+                
+                // Enhanced animation with better timing
+                const delay = Math.random() * 3;
+                const duration = 2 + Math.random() * 2;
+                
+                firework.style.animationDelay = `${delay}s`;
+                firework.style.animationDuration = `${duration}s`;
+                
+                crackersContainer.appendChild(firework);
+                
+                // Remove firework after animation
+                setTimeout(() => {
+                    firework.remove();
+                }, (delay + duration) * 1000);
+            }
+            
+            // Create initial crackers and fireworks
+            setInterval(createEnhancedCracker, 2000);
+            setInterval(createEnhancedFirework, 3000);
+            
+            // Celebration button functionality
+            celebrationBtn.addEventListener('click', function() {
+                // Big celebration when button is clicked
+                for (let i = 0; i < 20; i++) {
+                    setTimeout(() => {
+                        createEnhancedCracker();
+                        createEnhancedFirework();
+                    }, i * 100);
+                }
+                
+                // Change button text temporarily
+                const originalText = this.textContent;
+                this.textContent = '🎇 Celebrating! 🎇';
+                this.disabled = true;
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.disabled = false;
+                }, 3000);
+            });
+            
+            // Auto-celebration when page loads
+            setTimeout(() => {
+                for (let i = 0; i < 15; i++) {
+                    setTimeout(() => {
+                        createEnhancedCracker();
+                        createEnhancedFirework();
+                    }, i * 150);
+                }
+            }, 1000);
+            
+            // Add celebration when scrolling to important sections
+            const observerOptions = {
+                threshold: 0.3,
+                rootMargin: '0px 0px -100px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Small celebration when section comes into view
+                        for (let i = 0; i < 5; i++) {
+                            setTimeout(() => {
+                                createEnhancedCracker();
+                            }, i * 200);
+                        }
+                    }
+                });
+            }, observerOptions);
+            
+            // Observe important sections
+            const sections = document.querySelectorAll('.order-details, .delivery-info, .total');
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>

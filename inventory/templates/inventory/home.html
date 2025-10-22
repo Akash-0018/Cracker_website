@@ -1,0 +1,1065 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #0d6efd;
+        --secondary-color: #ff6b35;
+        --accent-color: #ffcc00;
+        --dark-color: #1a1a2e;
+        --light-color: #f8f9fa;
+        --success-color: #28a745;
+    }
+    
+    body {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        min-height: 100vh;
+        overflow-x: hidden;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    /* Crackers Animation Background */
+    .crackers-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+    
+    .cracker {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        pointer-events: none;
+        opacity: 0;
+    }
+    
+    .cracker::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: radial-gradient(circle, #ffcc00, #ff6b35, #ff0000);
+        animation: cracker-explode 1.5s ease-out forwards;
+    }
+    
+    @keyframes cracker-explode {
+        0% {
+            transform: scale(0);
+            opacity: 1;
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            transform: scale(8);
+            opacity: 0;
+        }
+    }
+    
+    .spark {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: #ffcc00;
+        box-shadow: 0 0 10px 2px #ffcc00;
+        opacity: 0;
+        animation: spark-fall 2s ease-out forwards;
+    }
+    
+    @keyframes spark-fall {
+        0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(100px) rotate(360deg);
+            opacity: 0;
+        }
+    }
+    
+    .firework {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        pointer-events: none;
+        animation: firework-launch 2s ease-out forwards;
+    }
+    
+    @keyframes firework-launch {
+        0% {
+            transform: translateY(100vh) scale(0);
+            opacity: 1;
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(0) scale(1);
+            opacity: 0;
+        }
+    }
+    
+    /* Inventory Container */
+    .inventory-container {
+        min-height: 100vh;
+        padding: 40px 20px;
+        position: relative;
+        z-index: 10;
+    }
+    
+    /* Page Header */
+    .page-header {
+        text-align: center;
+        margin-bottom: 50px;
+        animation: fadeInDown 0.8s ease-out;
+    }
+    
+    .page-title {
+        color: white;
+        font-weight: 800;
+        font-size: 3rem;
+        margin-bottom: 15px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .page-subtitle {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.2rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    /* Product Grid */
+    #product-grid {
+        animation: fadeInUp 0.8s ease-out 0.3s forwards;
+        opacity: 0;
+    }
+    
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Product Cards */
+    .product-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        animation: card-enter 0.8s ease-out forwards;
+        opacity: 0;
+        transform: translateY(30px);
+        position: relative;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+    }
+    
+    @keyframes card-enter {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .card-image-container {
+        position: relative;
+        overflow: hidden;
+        height: 250px;
+    }
+    
+    .card-img-top {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: all 0.4s ease;
+    }
+    
+    .product-card:hover .card-img-top {
+        transform: scale(1.1);
+    }
+    
+    .placeholder-image {
+        height: 250px;
+        background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+    }
+    
+    .product-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
+        color: white;
+        padding: 8px 15px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+        }
+    }
+    
+    .low-stock-badge {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+    }
+    
+    .card-body {
+        padding: 25px;
+    }
+    
+    .card-title {
+        color: var(--dark-color);
+        font-weight: 700;
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+    }
+    
+    .card-text {
+        color: #6c757d;
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+        line-height: 1.5;
+    }
+    
+    .category-tag {
+        display: inline-block;
+        background: rgba(13, 110, 253, 0.1);
+        color: var(--primary-color);
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+    
+    .price-stock-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: rgba(13, 110, 253, 0.05);
+        border-radius: 12px;
+    }
+    
+    .price {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--dark-color);
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .stock-info {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .stock-info.text-danger {
+        color: #dc3545 !important;
+        animation: shake 0.5s ease-in-out;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-3px); }
+        75% { transform: translateX(3px); }
+    }
+    
+    /* Cart Controls */
+    .cart-controls {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 15px;
+    }
+    
+    .quantity-selector {
+        margin-bottom: 15px;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 8px;
+    }
+    
+    .input-group {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-outline-secondary {
+        border: 2px solid #dee2e6;
+        background: white;
+        color: var(--dark-color);
+        font-weight: 600;
+        padding: 10px 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-secondary:hover {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    .quantity-input {
+        border: 2px solid #dee2e6;
+        border-left: none;
+        border-right: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .item-total {
+        font-weight: 700;
+        color: var(--dark-color);
+        font-size: 1.1rem;
+    }
+    
+    .total-price {
+        color: var(--primary-color);
+    }
+    
+    .add-to-cart {
+        background: linear-gradient(135deg, var(--primary-color), #0a58ca);
+        border: none;
+        border-radius: 12px;
+        padding: 12px 25px;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .add-to-cart::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .add-to-cart:hover::before {
+        left: 100%;
+    }
+    
+    .add-to-cart:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(13, 110, 253, 0.4);
+    }
+    
+    .add-to-cart:disabled {
+        background: #6c757d;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    /* Floating Cart */
+    .floating-cart {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
+        color: white;
+        padding: 15px 20px;
+        border-radius: 50px;
+        box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+        cursor: pointer;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        animation: bounce 2s infinite;
+    }
+    
+    .floating-cart:hover {
+        transform: scale(1.1);
+        box-shadow: 0 15px 40px rgba(255, 107, 53, 0.6);
+    }
+    
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+        }
+        40% {
+            transform: translateY(-10px);
+        }
+        60% {
+            transform: translateY(-5px);
+        }
+    }
+    
+    .cart-items-count {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    
+    /* Modal Styles */
+    .modal-content {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    }
+    
+    .modal-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 25px;
+    }
+    
+    .modal-title {
+        font-weight: 700;
+        color: var(--dark-color);
+        font-size: 1.5rem;
+    }
+    
+    .modal-body {
+        padding: 25px;
+    }
+    
+    .modal-footer {
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 25px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), #0a58ca);
+        border: none;
+        border-radius: 12px;
+        padding: 12px 25px;
+        font-weight: 600;
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 25px;
+        font-weight: 600;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .inventory-container {
+            padding: 20px 15px;
+        }
+        
+        .page-title {
+            font-size: 2.2rem;
+        }
+        
+        .page-subtitle {
+            font-size: 1rem;
+        }
+        
+        .floating-cart {
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 18px;
+            font-size: 0.9rem;
+        }
+        
+        .card-image-container {
+            height: 200px;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .inventory-container {
+            padding: 15px 10px;
+        }
+        
+        .page-title {
+            font-size: 1.8rem;
+        }
+        
+        .floating-cart {
+            bottom: 15px;
+            right: 15px;
+            padding: 10px 15px;
+            font-size: 0.8rem;
+        }
+        
+        .price-stock-info {
+            flex-direction: column;
+            gap: 10px;
+            text-align: center;
+        }
+        
+        .cart-controls {
+            padding: 15px;
+        }
+    }
+    
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="crackers-container" id="crackersContainer"></div>
+
+<!-- Floating Cart -->
+<div class="floating-cart" role="button" data-bs-toggle="modal" data-bs-target="#cartModal">
+    <i class="bi bi-cart3"></i>
+    ₹<span id="cart-total">0.00</span>
+    <span class="cart-items-count">(0 items)</span>
+</div>
+
+<!-- Cart Modal -->
+<div class="modal fade" id="cartModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Shopping Cart</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="cartItems" class="mb-4">
+                    <!-- Cart items will be dynamically inserted here -->
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-cart-x" style="font-size: 3rem;"></i>
+                        <p class="mt-2">Your cart is empty</p>
+                    </div>
+                </div>
+                <div class="cart-summary-details mb-4">
+                    <h4>Order Summary</h4>
+                    <div class="d-flex justify-content-between">
+                        <span>Subtotal:</span>
+                        <span>₹<span id="modalSubtotal">0.00</span></span>
+                    </div>
+                </div>
+                <form id="checkoutForm" class="needs-validation" novalidate>
+                    <h4>Customer Details</h4>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="fullName" name="full_name" 
+                                value="{{ user.get_full_name }}" 
+                                placeholder="Enter Full Name" required>
+                            <div class="invalid-feedback">Please enter your name</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                value="{{ user.phone_number }}"
+                                pattern="[0-9]{10}" placeholder="Enter 10-digit Phone Number" required>
+                            <div class="invalid-feedback">Please enter a valid 10-digit phone number</div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                value="{{ user.email }}"
+                                placeholder="Enter Email Address" required>
+                            <div class="invalid-feedback">Please enter a valid email</div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Delivery Address</label>
+                            <textarea class="form-control" id="deliveryAddress" name="delivery_address" 
+                                rows="3" placeholder="Enter Complete Delivery Address" required>{{ user.address }}</textarea>
+                            <div class="invalid-feedback">Please enter your delivery address</div>
+                        </div>
+                        {% if user.is_authenticated %}
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="updateProfile" name="update_profile">
+                                <label class="form-check-label" for="updateProfile">
+                                    Save these details to my profile
+                                </label>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continue Shopping</button>
+                <button type="button" class="btn btn-primary" id="proceedToCheckout">Proceed to Checkout</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="inventory-container">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Kannan Crackers Inventory</h1>
+            <p class="page-subtitle">Discover our premium collection of fireworks and crackers for all your celebrations</p>
+        </div>
+        
+        <div class="row g-4" id="product-grid">
+            {% for product in products %}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="product-card {% if product.is_low_stock %}low-stock{% endif %}" 
+                     data-product-id="{{ product.id }}" 
+                     style="animation-delay: {{ forloop.counter|add:1 }}00ms">
+                    
+                    {% if product.image %}
+                        <div class="card-image-container">
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                            {% if product.is_low_stock %}
+                                <div class="product-badge low-stock-badge">Low Stock!</div>
+                            {% else %}
+                                <div class="product-badge">Hot Item!</div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="card-image-container">
+                            <div class="placeholder-image">No Image Available</div>
+                            {% if product.is_low_stock %}
+                                <div class="product-badge low-stock-badge">Low Stock!</div>
+                            {% else %}
+                                <div class="product-badge">Hot Item!</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">{{ product.description }}</p>
+                        <div class="category-tag">
+                            {{ product.category.name }}
+                        </div>
+                        
+                        <div class="price-stock-info">
+                            <div class="price">₹{{ product.price }}</div>
+                            <div class="stock-info {% if product.is_low_stock %}text-danger{% endif %}">
+                                Stock: <span class="stock-quantity">{{ product.stock_quantity }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="cart-controls">
+                            <div class="quantity-selector">
+                                <label class="form-label">Select Quantity:</label>
+                                <div class="input-group">
+                                    <button class="btn btn-outline-secondary decrease-qty" type="button">-</button>
+                                    <input type="number" class="form-control quantity-input text-center" value="1" min="1" max="{{ product.stock_quantity }}"
+                                        {% if product.stock_quantity == 0 %}disabled{% endif %}>
+                                    <button class="btn btn-outline-secondary increase-qty" type="button">+</button>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="item-total">
+                                    Item Total: ₹<span class="total-price">{{ product.price }}</span>
+                                </div>
+                                <button class="btn btn-primary add-to-cart" 
+                                    {% if product.stock_quantity == 0 %}disabled{% endif %}>
+                                    <i class="bi bi-cart-plus"></i> Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Crackers animation
+        const crackersContainer = document.getElementById('crackersContainer');
+        
+        function createCracker() {
+            const cracker = document.createElement('div');
+            cracker.classList.add('cracker');
+            
+            // Random position
+            const posX = Math.random() * 100;
+            const posY = Math.random() * 100;
+            
+            cracker.style.left = `${posX}%`;
+            cracker.style.top = `${posY}%`;
+            
+            // Random delay
+            const delay = Math.random() * 5;
+            cracker.style.animationDelay = `${delay}s`;
+            
+            crackersContainer.appendChild(cracker);
+            
+            // Create sparks after cracker explosion
+            setTimeout(() => {
+                createSparks(posX, posY);
+            }, 800);
+            
+            // Remove cracker after animation
+            setTimeout(() => {
+                cracker.remove();
+            }, 1500);
+        }
+        
+        function createSparks(x, y) {
+            const sparkCount = 8 + Math.floor(Math.random() * 8);
+            
+            for (let i = 0; i < sparkCount; i++) {
+                const spark = document.createElement('div');
+                spark.classList.add('spark');
+                
+                spark.style.left = `${x}%`;
+                spark.style.top = `${y}%`;
+                
+                // Random direction and distance
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 20 + Math.random() * 30;
+                const endX = x + Math.cos(angle) * distance;
+                const endY = y + Math.sin(angle) * distance;
+                
+                spark.style.setProperty('--end-x', `${endX}%`);
+                spark.style.setProperty('--end-y', `${endY}%`);
+                
+                // Random delay and duration
+                const delay = Math.random() * 0.5;
+                const duration = 1 + Math.random() * 1;
+                
+                spark.style.animationDelay = `${delay}s`;
+                spark.style.animationDuration = `${duration}s`;
+                
+                crackersContainer.appendChild(spark);
+                
+                // Remove spark after animation
+                setTimeout(() => {
+                    spark.remove();
+                }, (delay + duration) * 1000);
+            }
+        }
+        
+        function createFirework() {
+            const firework = document.createElement('div');
+            firework.classList.add('firework');
+            
+            // Random position and color
+            const posX = Math.random() * 100;
+            const colors = ['#ffcc00', '#ff6b35', '#0d6efd', '#28a745', '#dc3545'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            firework.style.left = `${posX}%`;
+            firework.style.background = color;
+            firework.style.boxShadow = `0 0 10px 2px ${color}`;
+            
+            // Random delay and duration
+            const delay = Math.random() * 2;
+            const duration = 1 + Math.random() * 1;
+            
+            firework.style.animationDelay = `${delay}s`;
+            firework.style.animationDuration = `${duration}s`;
+            
+            crackersContainer.appendChild(firework);
+            
+            // Remove firework after animation
+            setTimeout(() => {
+                firework.remove();
+            }, (delay + duration) * 1000);
+        }
+        
+        // Create crackers and fireworks periodically
+        setInterval(createCracker, 1200);
+        setInterval(createFirework, 1800);
+        
+        // Cart functionality with celebration
+        let cart = [];
+        const cartTotal = document.getElementById('cart-total');
+        const cartItemsCount = document.querySelector('.cart-items-count');
+        const modalSubtotal = document.getElementById('modalSubtotal');
+        const cartItems = document.getElementById('cartItems');
+        
+        // Add to cart functionality
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function() {
+                const card = this.closest('.product-card');
+                const productId = card.dataset.productId;
+                const productName = card.querySelector('.card-title').textContent;
+                const price = parseFloat(card.querySelector('.price').textContent.replace('₹', ''));
+                const quantity = parseInt(card.querySelector('.quantity-input').value);
+                const stock = parseInt(card.querySelector('.stock-quantity').textContent);
+                
+                if (quantity > stock) {
+                    alert('Not enough stock available!');
+                    return;
+                }
+                
+                // Add item to cart
+                const existingItem = cart.find(item => item.id === productId);
+                if (existingItem) {
+                    existingItem.quantity += quantity;
+                } else {
+                    cart.push({
+                        id: productId,
+                        name: productName,
+                        price: price,
+                        quantity: quantity
+                    });
+                }
+                
+                updateCartDisplay();
+                
+                // Celebration animation
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        createCracker();
+                        createFirework();
+                    }, i * 100);
+                }
+                
+                // Floating cart bounce
+                const floatingCart = document.querySelector('.floating-cart');
+                floatingCart.style.animation = 'none';
+                setTimeout(() => {
+                    floatingCart.style.animation = 'bounce 2s infinite';
+                }, 10);
+            });
+        });
+        
+        // Quantity controls
+        document.querySelectorAll('.increase-qty').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.parentElement.querySelector('.quantity-input');
+                const max = parseInt(input.max);
+                const current = parseInt(input.value);
+                if (current < max) {
+                    input.value = current + 1;
+                    updateItemTotal(this.closest('.cart-controls'));
+                }
+            });
+        });
+        
+        document.querySelectorAll('.decrease-qty').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.parentElement.querySelector('.quantity-input');
+                const min = parseInt(input.min);
+                const current = parseInt(input.value);
+                if (current > min) {
+                    input.value = current - 1;
+                    updateItemTotal(this.closest('.cart-controls'));
+                }
+            });
+        });
+        
+        // Input change handler
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const max = parseInt(this.max);
+                const min = parseInt(this.min);
+                let value = parseInt(this.value);
+                
+                if (isNaN(value) || value < min) value = min;
+                if (value > max) value = max;
+                
+                this.value = value;
+                updateItemTotal(this.closest('.cart-controls'));
+            });
+        });
+        
+        function updateItemTotal(container) {
+            const price = parseFloat(container.closest('.product-card').querySelector('.price').textContent.replace('₹', ''));
+            const quantity = parseInt(container.querySelector('.quantity-input').value);
+            const totalElement = container.querySelector('.total-price');
+            totalElement.textContent = (price * quantity).toFixed(2);
+        }
+        
+        function updateCartDisplay() {
+            // Calculate totals
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            
+            // Update display
+            cartTotal.textContent = total.toFixed(2);
+            cartItemsCount.textContent = `(${itemCount} items)`;
+            modalSubtotal.textContent = total.toFixed(2);
+            
+            // Update cart items in modal
+            updateCartModal();
+        }
+        
+        function updateCartModal() {
+            if (cart.length === 0) {
+                cartItems.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-cart-x" style="font-size: 3rem;"></i>
+                        <p class="mt-2">Your cart is empty</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            cartItems.innerHTML = cart.map(item => `
+                <div class="cart-item d-flex justify-content-between align-items-center mb-3 p-3 border rounded">
+                    <div>
+                        <h6 class="mb-1">${item.name}</h6>
+                        <small class="text-muted">₹${item.price} × ${item.quantity}</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="fw-bold">₹${(item.price * item.quantity).toFixed(2)}</span>
+                        <button class="btn btn-sm btn-outline-danger remove-item" data-id="${item.id}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Add remove item functionality
+            document.querySelectorAll('.remove-item').forEach(button => {
+                button.addEventListener('click', function() {
+                    const itemId = this.dataset.id;
+                    cart = cart.filter(item => item.id !== itemId);
+                    updateCartDisplay();
+                });
+            });
+        }
+        
+        // Initialize item totals
+        document.querySelectorAll('.cart-controls').forEach(container => {
+            updateItemTotal(container);
+        });
+        
+        // Animate cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all animated elements
+        document.querySelectorAll('.product-card').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Checkout functionality
+        const checkoutForm = document.getElementById('checkoutForm');
+        const checkoutButton = document.getElementById('proceedToCheckout');
+
+        checkoutButton.addEventListener('click', async function() {
+            if (!checkoutForm.checkValidity()) {
+                checkoutForm.classList.add('was-validated');
+                return;
+            }
+
+            const customerData = {
+                fullName: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                deliveryAddress: document.getElementById('deliveryAddress').value,
+                updateProfile: document.getElementById('updateProfile')?.checked || false
+            };
+
+            // Convert cart array to object for sending
+            const cartItemsObj = {};
+            cart.forEach(item => {
+                cartItemsObj[item.id] = {
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price
+                };
+            });
+
+            try {
+                const response = await fetch('/inventory/checkout/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        customerData: customerData,
+                        cartItems: cartItemsObj
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Clear cart
+                    cart = [];
+                    updateCartDisplay();
+
+                    // Show success message
+                    const modalBody = document.querySelector('.modal-body');
+                    modalBody.innerHTML = `
+                        <div class="checkout-success text-center">
+                            <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                            <h4 class="mt-3">Order Placed Successfully!</h4>
+                            <p>Thank you for your order. We will contact you shortly.</p>
+                            <p class="fw-bold">Order Total: ₹${data.orderSummary.total.toFixed(2)}</p>
+                        </div>
+                    `;
+
+                    // Change modal footer
+                    const modalFooter = document.querySelector('.modal-footer');
+                    modalFooter.innerHTML = `
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Continue Shopping</button>
+                    `;
+                } else {
+                    alert(data.error || 'Failed to place order. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to place order. Please try again.');
+            }
+        });
+    });
+</script>
+{% endblock %}
