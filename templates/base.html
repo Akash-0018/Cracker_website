@@ -4,9 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kannan Crackers - Premium Fireworks & Crackers</title>
+    <meta name="description" content="Premium quality crackers and fireworks for all your celebrations. Safe, reliable, and affordable.">
+    <meta name="keywords" content="crackers, fireworks, Diwali, celebrations, Kannan Crackers">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Screen reader support -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Voice over hints -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <style>
         :root {
             --primary-color: #0d6efd;
@@ -286,37 +294,267 @@
             transform: translateY(-5px);
         }
         
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
+        /* Enhanced Responsive Design */
+        @media (max-width: 1200px) {
+            .hero-title {
+                font-size: 2.8rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .navbar-brand {
+                font-size: 1.6rem;
+            }
+
             .hero-title {
                 font-size: 2.5rem;
             }
-            
+
             .hero-subtitle {
                 font-size: 1.1rem;
             }
-            
-            .navbar-brand {
-                font-size: 1.5rem;
-            }
-            
+
             .feature-card {
-                margin-bottom: 20px;
+                margin-bottom: 25px;
+            }
+
+            .footer h5 {
+                font-size: 1.1rem;
             }
         }
-        
-        @media (max-width: 576px) {
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 10px 0;
+            }
+
+            .navbar-brand {
+                font-size: 1.4rem;
+            }
+
+            .nav-link {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+
+            .hero-section {
+                padding: 100px 0;
+                text-align: center;
+            }
+
             .hero-title {
+                font-size: 2.2rem;
+                line-height: 1.2;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+                margin-bottom: 25px;
+            }
+
+            .btn-hero {
+                padding: 12px 30px;
+                font-size: 1rem;
+                width: 100%;
+                max-width: 280px;
+            }
+
+            .features-section {
+                padding: 60px 0;
+            }
+
+            .section-title {
+                font-size: 2rem;
+                margin-bottom: 40px;
+            }
+
+            .feature-card {
+                margin-bottom: 30px;
+                padding: 25px 15px;
+            }
+
+            .feature-icon {
                 font-size: 2rem;
             }
-            
+
+            .footer {
+                padding: 50px 0 30px;
+                text-align: center;
+            }
+
+            .footer h5 {
+                font-size: 1rem;
+                margin-bottom: 15px;
+            }
+
+            .social-icons {
+                justify-content: center;
+                margin-top: 20px;
+            }
+
+            .social-icons a {
+                margin: 0 8px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+
+            .navbar-toggler {
+                padding: 8px;
+                border: none;
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            .navbar-toggler:focus {
+                box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+            }
+
             .hero-section {
                 padding: 80px 0;
             }
-            
+
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .hero-subtitle {
+                font-size: 0.95rem;
+            }
+
             .btn-hero {
-                padding: 10px 25px;
-                font-size: 1rem;
+                padding: 12px 25px;
+                font-size: 0.95rem;
+            }
+
+            .features-section {
+                padding: 50px 0;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .feature-card {
+                padding: 20px 15px;
+                margin-bottom: 25px;
+            }
+
+            .feature-icon {
+                font-size: 1.8rem;
+                margin-bottom: 15px;
+            }
+
+            .footer {
+                padding: 40px 0 25px;
+            }
+
+            .footer-links {
+                margin-bottom: 20px;
+            }
+
+            .footer-links a {
+                font-size: 0.9rem;
+                padding: 5px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 1.6rem;
+            }
+
+            .hero-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .btn-hero {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .section-title {
+                font-size: 1.6rem;
+            }
+
+            .feature-card {
+                padding: 15px 10px;
+            }
+
+            .feature-icon {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .nav-link:hover {
+                transform: none;
+                background-color: rgba(255, 255, 255, 0.15);
+            }
+
+            .btn-outline-light:hover {
+                transform: none;
+                background-color: rgba(255, 255, 255, 0.15);
+            }
+
+            .btn-hero:hover {
+                transform: none;
+            }
+
+            .feature-card:hover {
+                transform: none;
+            }
+
+            .dropdown-item:hover {
+                background-color: rgba(13, 110, 253, 0.15);
+            }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .navbar {
+                background: var(--dark-color) !important;
+                border-bottom: 2px solid white;
+            }
+
+            .hero-section {
+                background: var(--dark-color);
+            }
+
+            .hero-title, .hero-subtitle {
+                color: white !important;
+            }
+
+            .feature-card {
+                background: white !important;
+                border: 2px solid black !important;
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+
+            .floating {
+                animation: none !important;
+            }
+
+            .animate-on-scroll {
+                opacity: 1 !important;
+                transform: none !important;
             }
         }
         
@@ -357,8 +595,8 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-
                     {% if user.is_authenticated %}
+   
                         {% if user.role == 'admin' or user.role == 'staff' %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'admin:index' %}">
@@ -409,7 +647,7 @@
                 <h1 class="hero-title animate__animated animate__fadeInDown">Light Up Your Celebrations</h1>
                 <p class="hero-subtitle animate__animated animate__fadeIn animate__delay-1s">Premium quality crackers and fireworks for all your special occasions. From Diwali to New Year's Eve, we've got the sparkle you need.</p>
                 {% if user.is_authenticated %}
-                <a href="#products" class="btn btn-hero animate__animated animate__fadeInUp animate__delay-2s floating">Explore Products</a>
+                <a href="{% url 'inventory_sub:home' %}" class="btn btn-hero animate__animated animate__fadeInUp animate__delay-2s floating">Explore Products</a>
                 {% else %}
                 <a href="{% url 'account_signup' %}" class="btn btn-hero animate__animated animate__fadeInUp animate__delay-2s floating">Create Your Account</a>
                 {% endif %}

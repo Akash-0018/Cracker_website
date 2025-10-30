@@ -167,6 +167,9 @@
         opacity: 0;
         transform: translateY(30px);
         position: relative;
+        min-height: 550px;
+        display: flex;
+        flex-direction: column;
     }
     
     .product-card:hover {
@@ -184,7 +187,7 @@
     .card-image-container {
         position: relative;
         overflow: hidden;
-        height: 250px;
+        height: 180px;
     }
     
     .card-img-top {
@@ -199,7 +202,7 @@
     }
     
     .placeholder-image {
-        height: 250px;
+        height: 100%;
         background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
         display: flex;
         align-items: center;
@@ -489,63 +492,337 @@
         font-weight: 600;
     }
     
-    /* Responsive Adjustments */
+    /* Enhanced Responsive Design */
+    @media (max-width: 1200px) {
+        .product-card {
+            margin-bottom: 25px;
+        }
+
+        .card-image-container {
+            height: 280px;
+        }
+    }
+
+    @media (max-width: 992px) {
+        .inventory-container {
+            padding: 30px 20px;
+        }
+
+        .page-title {
+            font-size: 2.8rem;
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+        }
+
+        .card-image-container {
+            height: 260px;
+        }
+
+        .card-body {
+            padding: 22px;
+        }
+
+        .floating-cart {
+            bottom: 25px;
+            right: 25px;
+            padding: 14px 20px;
+            font-size: 0.95rem;
+        }
+    }
+
     @media (max-width: 768px) {
         .inventory-container {
             padding: 20px 15px;
         }
-        
+
         .page-title {
             font-size: 2.2rem;
+            margin-bottom: 12px;
         }
-        
+
         .page-subtitle {
             font-size: 1rem;
         }
-        
+
         .floating-cart {
             bottom: 20px;
             right: 20px;
             padding: 12px 18px;
             font-size: 0.9rem;
         }
-        
+
         .card-image-container {
             height: 200px;
         }
-        
+
         .card-body {
             padding: 20px;
         }
+
+        .card-title {
+            font-size: 1.2rem;
+        }
+
+        .card-text {
+            font-size: 0.9rem;
+        }
+
+        .price {
+            font-size: 1.3rem;
+        }
+
+        .stock-info {
+            font-size: 0.85rem;
+        }
+
+        .quantity-selector {
+            margin-bottom: 12px;
+        }
+
+        .input-group {
+            max-width: 160px;
+        }
+
+        .btn-outline-secondary {
+            padding: 10px 15px;
+            font-size: 0.9rem;
+        }
+
+        .add-to-cart {
+            padding: 10px 20px;
+            font-size: 0.95rem;
+        }
+
+        .modal-dialog {
+            margin: 10px;
+            max-width: calc(100vw - 20px);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .cart-item {
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .cart-item h5 {
+            font-size: 1rem;
+        }
     }
-    
+
     @media (max-width: 576px) {
         .inventory-container {
             padding: 15px 10px;
         }
-        
+
         .page-title {
             font-size: 1.8rem;
         }
-        
+
+        .page-subtitle {
+            font-size: 0.95rem;
+        }
+
         .floating-cart {
             bottom: 15px;
             right: 15px;
             padding: 10px 15px;
             font-size: 0.8rem;
         }
-        
+
         .price-stock-info {
             flex-direction: column;
             gap: 10px;
             text-align: center;
         }
-        
+
         .cart-controls {
             padding: 15px;
         }
+
+        .card-body {
+            padding: 18px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .category-tag {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+        }
+
+        .price-stock-info {
+            padding: 12px;
+        }
+
+        .price {
+            font-size: 1.2rem;
+        }
+
+        .stock-info {
+            font-size: 0.8rem;
+        }
+
+        .quantity-selector label {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .input-group {
+            max-width: 140px;
+        }
+
+        .btn-outline-secondary {
+            padding: 6px 10px;
+            font-size: 0.85rem;
+        }
+
+        .add-to-cart {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .item-total {
+            font-size: 0.9rem;
+        }
+
+        .modal-header {
+            padding: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+        }
+
+        .form-control {
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
+
+        .btn {
+            min-height: 44px; /* Touch target size */
+        }
     }
-    
+
+    @media (max-width: 480px) {
+        .inventory-container {
+            padding: 10px 8px;
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+        }
+
+        .page-subtitle {
+            font-size: 0.9rem;
+        }
+
+        .floating-cart {
+            bottom: 12px;
+            right: 12px;
+            padding: 8px 12px;
+            font-size: 0.75rem;
+        }
+
+        .card-image-container {
+            height: 180px;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+        }
+
+        .card-text {
+            font-size: 0.85rem;
+        }
+
+        .price {
+            font-size: 1.1rem;
+        }
+
+        .stock-info {
+            font-size: 0.75rem;
+        }
+
+        .cart-controls {
+            padding: 15px;
+        }
+
+        .quantity-selector label {
+            font-size: 0.9rem;
+        }
+
+        .btn-outline-secondary {
+            padding: 4px 6px;
+            font-size: 0.8rem;
+        }
+
+        .add-to-cart {
+            padding: 8px 14px;
+            font-size: 0.85rem;
+        }
+
+        .modal-dialog {
+            margin: 5px;
+        }
+
+        .modal-body {
+            padding: 15px;
+        }
+    }
+
+    /* Touch-friendly improvements */
+    @media (hover: none) and (pointer: coarse) {
+        .product-card:hover {
+            transform: none;
+        }
+
+        .add-to-cart:hover {
+            transform: none;
+        }
+
+        .floating-cart:hover {
+            transform: none;
+        }
+
+        .btn-outline-secondary:hover {
+            transform: none;
+        }
+
+        /* Ensure minimum touch targets */
+        .btn, .btn-outline-secondary, .add-to-cart, .floating-cart {
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        .quantity-input {
+            min-height: 44px;
+            font-size: 16px;
+        }
+    }
+
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+        /* Add high contrast styles here if needed */
+    }
 </style>
 {% endblock %}
 
@@ -644,7 +921,7 @@
         
         <div class="row g-4" id="product-grid">
             {% for product in products %}
-            <div class="col-12 col-md-6 col-lg-4">
+            <div class="col-6 col-lg-3">
                 <div class="product-card {% if product.is_low_stock %}low-stock{% endif %}" 
                      data-product-id="{{ product.id }}" 
                      style="animation-delay: {{ forloop.counter|add:1 }}00ms">
