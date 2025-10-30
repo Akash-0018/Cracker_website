@@ -1,0 +1,16 @@
+Django>=4.2.0,<5.0.0
+django-allauth>=0.54.0
+Pillow>=10.0.0  # For image handling
+mysqlclient>=2.2.0  # For MySQL database on PythonAnywhere
+django-crispy-forms>=2.0  # For better form rendering
+python-dotenv>=1.0.0  # For environment variables
+whitenoise>=6.5.0  # For serving static files in production
+django-cleanup>=8.0.0  # For automatically cleaning up files
+gunicorn>=21.2.0  # For production server
+django-debug-toolbar>=4.2.0  # For development debugging
+django-storages>=1.14  # For file storage handling
+requests>=2.31.0  # For HTTP requests
+six>=1.16.0  # Required by django-allauth
+python-dateutil>=2.8.2  # For date handling
+django-cors-headers>=4.2.0  # For handling CORS
+django-widget-tweaks>=1.5.0  # For form widget customization
