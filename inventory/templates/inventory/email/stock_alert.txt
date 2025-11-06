@@ -1,7 +1,7 @@
 Low Stock Alert
 
-Product: {{ product_name }}
-Category: {{ category }}
-Current Stock: {{ current_stock }} units
+Product: {{ product.name }}
+Category: {{ product.category }}
+Current Stock: {{ product.stock_quantity }} units
 
 Please take necessary action to replenish the stock.

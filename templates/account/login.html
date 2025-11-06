@@ -1,55 +1,236 @@
 {% extends "base.html" %}
+{% load static %}
 {% load i18n %}
 {% load account socialaccount %}
 
+{% block hero %}{% endblock %}
 {% block extra_css %}
 <style>
     :root {
-        --primary-color: #0d6efd;
-        --secondary-color: #ff6b35;
-        --accent-color: #ffcc00;
-        --dark-color: #1a1a2e;
-        --light-color: #f8f9fa;
-        --success-color: #28a745;
+        --diwali-gold: #ffd700;
+        --diwali-deep-gold: #ffb347;
+        --diwali-red: #b30000;
+        --diwali-orange: #ff8c00;
+        --diwali-green: #228b22;
+        --diwali-blue: #1a1a2e;
+        --diwali-purple: #4b0082;
+        --diwali-pink: #ff69b4;
     }
-    
+
     body {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        background: linear-gradient(135deg, var(--diwali-blue) 0%, #16213e 50%, #0f3460 100%);
         min-height: 100vh;
         overflow-x: hidden;
+        padding: 0;
+        margin: 0;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
     }
-    
-    /* Crackers Animation Background */
-    .crackers-container {
-        position: fixed;
-        top: 0;
-        left: 0;
+
+    .navbar {
+       display:none;
+
+    }
+
+    /* Enhanced Navbar */
+    .navbar {
+        position:relative !important;
+        background: linear-gradient(135deg, var(--primary-color), var(--dark-color)) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        padding: 12px 0;
+    }
+
+    .navbar-brand {
+        font-weight: 700;
+        font-size: 1.8rem;
+       background: linear-gradient(135deg, var(--diwali-orange), var(--diwali-red));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        transition: all 0.3s ease;
+    }
+
+    .signup-container {
+        flex: 1;
+        display: flex;
         width: 100%;
-        height: 100%;
-        z-index: -1;
+        max-width: 1200px;
+        height: auto;
+        min-height: calc(100vh - 80px);
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
         overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        flex-direction: row;
+        margin: 20px auto;
     }
-    
+
+    /* Left Side - Diwali Animation */
+    .diwali-animation {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, var(--diwali-blue) 0%, var(--diwali-purple) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 400px;
+    }
+
+    .brand-overlay {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 10;
+
+        padding: 10px 15px;
+        border-radius: 10px;
+
+        backdrop-filter: blur(10px);
+    }
+
+    .diya-container {
+        position: relative;
+        width: 200px;
+        height: 200px;
+    }
+
+    .diya {
+        position: absolute;
+        width: 150px;
+        height: 90px;
+        background: var(--diwali-deep-gold);
+        border-radius: 50% 50% 40% 40%;
+        bottom: 0;
+        left: 25px;
+        box-shadow:
+            inset 0 -10px 20px rgba(0, 0, 0, 0.3),
+            0 5px 15px rgba(255, 179, 71, 0.5);
+        z-index: 2;
+    }
+
+    .diya::before {
+        content: '';
+        position: absolute;
+        width: 135px;
+        height: 60px;
+        background: var(--diwali-gold);
+        border-radius: 50%;
+        top: -25px;
+        left: 7.5px;
+    }
+
+    .flame {
+        position: absolute;
+        width: 30px;
+        height: 90px;
+        background: linear-gradient(to top, var(--diwali-orange), var(--diwali-gold), white);
+        border-radius: 50% 50% 20% 20%;
+        top: -90px;
+        left: 60px;
+        box-shadow:
+            0 0 20px var(--diwali-orange),
+            0 0 40px var(--diwali-gold),
+            0 0 60px rgba(255, 255, 255, 0.5);
+        animation: flicker 2s infinite alternate;
+        z-index: 1;
+    }
+
+    @keyframes flicker {
+        0%, 100% {
+            transform: scaleY(1) skew(0deg);
+            opacity: 0.9;
+        }
+        25% {
+            transform: scaleY(1.1) skew(2deg);
+            opacity: 1;
+        }
+        50% {
+            transform: scaleY(0.9) skew(-1deg);
+            opacity: 0.8;
+        }
+        75% {
+            transform: scaleY(1.05) skew(1deg);
+            opacity: 0.95;
+        }
+    }
+
+    .sparkle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: var(--diwali-gold);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--diwali-gold);
+        animation: sparkle 3s infinite;
+    }
+
+    @keyframes sparkle {
+        0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 0;
+        }
+        10% {
+            opacity: 1;
+        }
+        90% {
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-100px) rotate(360deg);
+            opacity: 0;
+        }
+    }
+
+    .rangoli {
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        background:
+            radial-gradient(circle at center, transparent 30%, var(--diwali-pink) 70%),
+            repeating-conic-gradient(
+                var(--diwali-green) 0deg 10deg,
+                var(--diwali-orange) 10deg 20deg,
+                var(--diwali-red) 20deg 30deg,
+                var(--diwali-gold) 30deg 40deg
+            );
+        border-radius: 50%;
+        opacity: 0.3;
+        animation: rotate 30s linear infinite;
+    }
+
+    @keyframes rotate {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Crackers Animation */
     .cracker {
         position: absolute;
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
         border-radius: 50%;
         pointer-events: none;
         opacity: 0;
     }
-    
+
     .cracker::before {
         content: '';
         position: absolute;
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        background: radial-gradient(circle, #ffcc00, #ff6b35, #ff0000);
+        background: radial-gradient(circle, var(--diwali-gold), var(--diwali-orange), var(--diwali-red));
         animation: cracker-explode 1.5s ease-out forwards;
     }
-    
+
     @keyframes cracker-explode {
         0% {
             transform: scale(0);
@@ -63,463 +244,437 @@
             opacity: 0;
         }
     }
-    
-    .spark {
-        position: absolute;
-        width: 4px;
-        height: 4px;
-        border-radius: 50%;
-        background: #ffcc00;
-        box-shadow: 0 0 10px 2px #ffcc00;
-        opacity: 0;
-        animation: spark-fall 2s ease-out forwards;
-    }
-    
-    @keyframes spark-fall {
-        0% {
-            transform: translateY(0) rotate(0deg);
-            opacity: 1;
-        }
-        100% {
-            transform: translateY(100px) rotate(360deg);
-            opacity: 0;
-        }
-    }
-    
-    .firework {
-        position: absolute;
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        pointer-events: none;
-        animation: firework-launch 2s ease-out forwards;
-    }
-    
-    @keyframes firework-launch {
-        0% {
-            transform: translateY(100vh) scale(0);
-            opacity: 1;
-        }
-        50% {
-            opacity: 1;
-        }
-        100% {
-            transform: translateY(0) scale(1);
-            opacity: 0;
-        }
-    }
-    
-    /* Signin Card Styling */
-    .signin-container {
-        min-height: 100vh;
+
+    /* Right Side - Signup Form */
+    .signup-form {
+        flex: 1;
+        padding: 40px 30px;
         display: flex;
-        align-items: center;
+        flex-direction: column;
         justify-content: center;
-        padding: 20px;
-    }
-    
-    .signin-card {
         background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-        overflow: hidden;
-        width: 100%;
-        max-width: 500px;
-        position: relative;
-        z-index: 10;
-        animation: card-enter 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        min-height: 500px;
     }
-    
-    @keyframes card-enter {
-        0% {
-            opacity: 0;
-            transform: translateY(50px) scale(0.9);
-        }
-        100% {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-    }
-    
-    .card-header {
-        background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
-        padding: 30px 20px;
+
+    .logo {
         text-align: center;
-        position: relative;
-        overflow: hidden;
+        margin-bottom: 25px;
     }
-    
-    .card-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-        animation: shine 3s infinite linear;
-    }
-    
-    @keyframes shine {
-        0% {
-            transform: rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-    
-    .card-title {
-        color: white;
+
+    .logo h1 {
+        font-size: 2rem;
+        background: linear-gradient(135deg, var(--diwali-orange), var(--diwali-red));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
         font-weight: 700;
-        font-size: 2.2rem;
-        margin-bottom: 0;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        position: relative;
     }
-    
-    .card-subtitle {
-        color: rgba(255, 255, 255, 0.8);
-        margin-top: 10px;
-        font-size: 1rem;
+
+    .logo p {
+        color: var(--diwali-blue);
+        margin-top: 8px;
+        font-size: 0.9rem;
     }
-    
-    .card-body {
-        padding: 40px;
+
+    .form-group {
+        margin-bottom: 18px;
     }
-    
-    /* Form Elements */
+
     .form-label {
         font-weight: 600;
-        color: var(--dark-color);
-        margin-bottom: 8px;
+        color: var(--diwali-blue);
+        margin-bottom: 6px;
+        font-size: 0.9rem;
     }
-    
+
     .form-control {
         border: 2px solid #e9ecef;
-        border-radius: 12px;
-        padding: 12px 15px;
-        font-size: 1rem;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 0.9rem;
         transition: all 0.3s ease;
-        background: rgba(255, 255, 255, 0.8);
     }
-    
+
     .form-control:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-        background: white;
-        transform: translateY(-2px);
+        border-color: var(--diwali-orange);
+        box-shadow: 0 0 0 0.25rem rgba(255, 140, 0, 0.15);
     }
-    
-    .form-check-input:checked {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
+
+    .form-text {
+        font-size: 0.85rem;
+        margin-top: 8px;
     }
-    
-    .form-check-input:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+
+    .form-text ul {
+        padding-left: 20px;
     }
-    
-    /* Buttons */
+
+    .form-text li {
+        margin-bottom: 4px;
+    }
+
     .btn-google {
-        background: white;
-        color: #444;
         border: 2px solid #ddd;
-        border-radius: 12px;
-        padding: 12px;
+        border-radius: 10px;
+        padding: 9px;
         font-weight: 600;
         transition: all 0.3s ease;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
-        position: relative;
-        overflow: hidden;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        color: #444;
     }
-    
-    .btn-google::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        transition: left 0.5s;
-    }
-    
-    .btn-google:hover::before {
-        left: 100%;
-    }
-    
+
     .btn-google:hover {
         border-color: #db4437;
         background: #f8f9fa;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
-    
-    .btn-primary {
-        background: linear-gradient(135deg, var(--primary-color), #0a58ca);
+
+    .btn-signup {
+        background: linear-gradient(135deg, var(--diwali-orange), var(--diwali-red));
         border: none;
-        border-radius: 12px;
-        padding: 12px;
+        border-radius: 10px;
+        padding: 10px;
         font-weight: 600;
-        font-size: 1.1rem;
+        font-size: 1rem;
+        color: white;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
-        position: relative;
-        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
     }
-    
-    .btn-primary::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.5s;
+
+    .btn-signup:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(255, 140, 0, 0.4);
     }
-    
-    .btn-primary:hover::before {
-        left: 100%;
+
+    .auth-links {
+        text-align: center;
+        margin-top: 18px;
+        font-size: 0.9rem;
     }
-    
-    .btn-primary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(13, 110, 253, 0.4);
-        background: linear-gradient(135deg, #0a58ca, var(--primary-color));
+
+    .auth-link {
+        color: var(--diwali-orange);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
     }
-    
-    .btn-primary:active {
-        transform: translateY(-1px);
+
+    .auth-link:hover {
+        color: var(--diwali-red);
     }
-    
-    /* Divider */
+
     .divider {
         display: flex;
         align-items: center;
         text-align: center;
-        margin: 20px 0;
+        margin: 18px 0;
     }
-    
+
     .divider::before,
     .divider::after {
         content: '';
         flex: 1;
         border-bottom: 1px solid #dee2e6;
     }
-    
+
     .divider span {
-        padding: 0 15px;
+        padding: 0 12px;
         color: #6c757d;
         font-weight: 500;
         font-size: 0.9rem;
     }
-    
-    /* Messages */
-    .alert {
-        border-radius: 12px;
-        border: none;
-        padding: 12px 15px;
-        animation: alert-pop 0.5s ease-out;
-    }
-    
-    @keyframes alert-pop {
-        0% {
-            transform: scale(0.8);
-            opacity: 0;
+
+
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .signup-container {
+            flex-direction: column;
+            max-width: 600px;
+            min-height: auto;
+            margin: 20px auto;
         }
-        100% {
-            transform: scale(1);
-            opacity: 1;
+
+        .firework-animation {
+            height: 300px;
+            min-height: 300px;
         }
-    }
-    
-    .alert-success {
-        background: rgba(40, 167, 69, 0.1);
-        color: var(--success-color);
-        border-left: 4px solid var(--success-color);
-    }
-    
-    .alert-error {
-        background: rgba(220, 53, 69, 0.1);
-        color: #dc3545;
-        border-left: 4px solid #dc3545;
-    }
-    
-    /* Links */
-    .auth-link {
-        color: var(--primary-color);
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        position: relative;
-    }
-    
-    .auth-link::after {
-        content: '';
-        position: absolute;
-        width: 0;
-        height: 2px;
-        bottom: -2px;
-        left: 0;
-        background: var(--primary-color);
-        transition: width 0.3s ease;
-    }
-    
-    .auth-link:hover {
-        color: #0a58ca;
-    }
-    
-    .auth-link:hover::after {
-        width: 100%;
-    }
-    
-    /* Celebration Animation */
-    .celebration {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 100;
-        opacity: 0;
-        transition: opacity 0.5s ease;
-    }
-    
-    .celebration.active {
-        opacity: 1;
-    }
-    
-    .confetti {
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        opacity: 0;
-    }
-    
-    .confetti::before {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background: var(--accent-color);
-        transform: rotate(45deg);
-    }
-    
-    /* Floating Animation */
-    @keyframes float {
-        0%, 100% {
-            transform: translateY(0);
+
+        .signup-form {
+            padding: 30px 25px;
+            min-height: 400px;
         }
-        50% {
-            transform: translateY(-10px);
+
+        .rocket-container {
+            width: 180px;
+            height: 180px;
+        }
+
+        .rocket {
+            width: 35px;
+            height: 100px;
+            left: 72px;
+        }
+
+        .rocket::before {
+            width: 30px;
+            height: 70px;
+            top: -4px;
+            left: 2.5px;
+        }
+
+        .rocket::after {
+            width: 18px;
+            height: 18px;
+            top: -22px;
+            left: 8.5px;
+        }
+
+        .stars {
+            width: 250px;
+            height: 250px;
         }
     }
-    
-    .floating {
-        animation: float 3s ease-in-out infinite;
-    }
-    
-    /* Responsive Adjustments */
+
     @media (max-width: 576px) {
-        .signin-container {
-            padding: 15px;
+        body {
+            padding: 0;
         }
-        
-        .card-body {
-            padding: 30px 20px;
+
+        .signup-container {
+            border-radius: 15px;
+            margin: 15px;
         }
-        
-        .card-title {
+
+        .signup-form {
+            padding: 25px 20px;
+        }
+
+        .logo h1 {
             font-size: 1.8rem;
         }
-        
-        .btn-google, .btn-primary {
-            padding: 10px;
+
+        .logo p {
+            font-size: 0.85rem;
         }
+
+        .form-control {
+            padding: 8px 10px;
+            font-size: 0.85rem;
+        }
+
+        .btn-signup, .btn-google {
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+
+        .firework-animation {
+            height: 250px;
+            min-height: 250px;
+        }
+
+        .rocket-container {
+            width: 150px;
+            height: 150px;
+        }
+
+        .rocket {
+            width: 30px;
+            height: 85px;
+            left: 60px;
+        }
+
+        .rocket::before {
+            width: 25px;
+            height: 60px;
+            top: -3px;
+            left: 2.5px;
+        }
+
+        .rocket::after {
+            width: 15px;
+            height: 15px;
+            top: -18px;
+            left: 7.5px;
+        }
+
+        .stars {
+            width: 200px;
+            height: 200px;
+        }
+
+        .auth-links {
+            font-size: 0.85rem;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .signup-container {
+            margin: 10px;
+        }
+
+        .signup-form {
+            padding: 20px 15px;
+        }
+
+        .logo h1 {
+            font-size: 1.6rem;
+        }
+
+        .firework-animation {
+            height: 200px;
+            min-height: 200px;
+        }
+    }
+
+    /* Touch-friendly improvements */
+    @media (hover: none) and (pointer: coarse) {
+        .btn-google:hover,
+        .btn-signup:hover {
+            transform: none;
+        }
+
+        /* Ensure minimum touch targets */
+        .btn-google, .btn-signup {
+            min-height: 44px;
+        }
+
+        .form-control {
+            min-height: 44px;
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
+    }
+
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+        .signup-container {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid white;
+        }
+
+        .signup-form {
+            background: white;
+            border: 2px solid black;
+        }
+
+        .form-control {
+            border: 2px solid black;
+        }
+
+        .form-control:focus {
+            border-color: black;
+            box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.25);
+        }
+
+        .btn-signup {
+            background: black;
+            color: white;
+            border: 2px solid black;
+        }
+
+        .btn-google {
+            border: 2px solid black;
+            color: black;
+        }
+    }
+
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+
+        .flame {
+            animation: none;
+        }
+
+        .sparkle {
+            animation: none;
+        }
+
+        .rangoli {
+            animation: none;
+        }
+
+        .cracker::before {
+            animation: none;
+        }
+    }
+
+    /* Hide footer on login page */
+    .footer {
+        display: none;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Crackers Animation Container -->
-<div class="crackers-container" id="crackersContainer"></div>
-
-<!-- Celebration Container -->
-<div class="celebration" id="celebrationContainer"></div>
-
-<div class="signin-container">
-    <div class="signin-card">
-        <div class="card-header">
-            <h2 class="card-title animate__animated animate__fadeInDown">Welcome Back!</h2>
-            <p class="card-subtitle animate__animated animate__fadeIn animate__delay-1s">Sign in to continue your celebration journey</p>
+<div class="signup-container">
+    <!-- Left Side - Diwali Animation -->
+    <div class="diwali-animation" id="diwaliAnimation">
+        <div class="rangoli"></div>
+        <div class="diya-container">
+            <div class="diya"></div>
+            <div class="flame"></div>
         </div>
-        
-        <div class="card-body">
-            {% if messages %}
-            <div class="messages mb-4">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} animate__animated animate__fadeIn">
-                    {{ message }}
-                </div>
-                {% endfor %}
+        <div class="brand-overlay">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-fire me-2"></i>Kannan Crackers
+            </a>
+        </div>
+    </div>
+
+    <!-- Right Side - Login Form -->
+    <div class="signup-form">
+        <div class="logo">
+            <h1>Welcome Back</h1>
+            <p>Sign in to continue your celebration</p>
+        </div>
+
+        <form class="login" id="login_form" method="post" action="{% url 'account_login' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_login" class="form-label">Email Address</label>
+                <input type="email" name="login" placeholder="Enter your email" class="form-control" id="id_login" required>
             </div>
+
+            <div class="form-group">
+                <label for="id_password" class="form-label">Password</label>
+                <input type="password" name="password" placeholder="Enter your password" class="form-control" id="id_password" required>
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" name="remember" class="form-check-input" id="id_remember">
+                    <label class="form-check-label" for="id_remember">Remember me</label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-signup w-100" id="loginButton">Sign In</button>
+
+            <div class="divider">
+                <span>or</span>
+            </div>
+
+            <a href="{% provider_login_url 'google' %}" class="btn btn-google w-100">
+                <img src="{% static 'images/Google.png' %}" style="width:20px;"> Sign in with Google
+            </a>
+
+            <div class="auth-links">
+                <a href="{% url 'account_reset_password' %}" class="auth-link">Forgot Password?</a>
+                <br>
+                <a href="{% url 'account_signup' %}" class="auth-link">Don't have an account? Sign Up</a>
+            </div>
+
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
             {% endif %}
-
-            <div class="d-grid gap-3">
-                <!-- Google Sign In Button -->
-                <a href="{% provider_login_url 'google' %}" class="btn btn-google animate__animated animate__fadeIn floating">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo" style="height: 20px;">
-                    Sign in with Google
-                </a>
-
-                <div class="divider animate__animated animate__fadeIn">
-                    <span>or continue with email</span>
-                </div>
-
-                <!-- Email Login Form -->
-                <form class="login" method="POST" action="{% url 'account_login' %}" id="loginForm">
-                    {% csrf_token %}
-                    <div class="mb-3 animate__animated animate__fadeInUp">
-                        <label for="id_login" class="form-label">Email</label>
-                        <input type="email" name="login" placeholder="Enter your email address" class="form-control form-control-lg" id="id_login" required>
-                    </div>
-                    <div class="mb-3 animate__animated animate__fadeInUp animate__delay-1">
-                        <label for="id_password" class="form-label">Password</label>
-                        <input type="password" name="password" placeholder="Enter your password" class="form-control form-control-lg" id="id_password" required>
-                    </div>
-                    <div class="mb-3 form-check animate__animated animate__fadeInUp animate__delay-2">
-                        <input type="checkbox" name="remember" class="form-check-input" id="id_remember">
-                        <label class="form-check-label" for="id_remember">Remember me</label>
-                    </div>
-                    <div class="d-grid animate__animated animate__fadeInUp animate__delay-3">
-                        <button class="btn btn-primary btn-lg" type="submit" id="signinButton">Sign In</button>
-                    </div>
-                    {% if redirect_field_value %}
-                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-                    {% endif %}
-                </form>
-
-                <!-- Links -->
-                <div class="text-center mt-3 animate__animated animate__fadeIn animate__delay-4">
-                    <p class="mb-1">
-                        <a href="{% url 'account_reset_password' %}" class="auth-link">Forgot Password?</a>
-                    </p>
-                    <p class="mb-0">
-                        Don't have an account? 
-                        <a href="{% url 'account_signup' %}" class="auth-link">Sign Up</a>
-                    </p>
-                </div>
-            </div>
-        </div>
+        </form>
     </div>
 </div>
 {% endblock %}
@@ -527,209 +682,106 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Crackers animation
-        const crackersContainer = document.getElementById('crackersContainer');
-        const celebrationContainer = document.getElementById('celebrationContainer');
-        
-        function createCracker() {
-            const cracker = document.createElement('div');
-            cracker.classList.add('cracker');
-            
+        const diwaliAnimation = document.getElementById('diwaliAnimation');
+
+        // Create sparkles
+        function createSparkle() {
+            const sparkle = document.createElement('div');
+            sparkle.classList.add('sparkle');
+
             // Random position
             const posX = Math.random() * 100;
             const posY = Math.random() * 100;
-            
+
+            sparkle.style.left = `${posX}%`;
+            sparkle.style.top = `${posY}%`;
+
+            // Random size
+            const size = 2 + Math.random() * 6;
+            sparkle.style.width = `${size}px`;
+            sparkle.style.height = `${size}px`;
+
+            // Random delay and duration
+            const delay = Math.random() * 5;
+            const duration = 2 + Math.random() * 3;
+
+            sparkle.style.animationDelay = `${delay}s`;
+            sparkle.style.animationDuration = `${duration}s`;
+
+            diwaliAnimation.appendChild(sparkle);
+
+            // Remove sparkle after animation
+            setTimeout(() => {
+                sparkle.remove();
+            }, (delay + duration) * 1000);
+        }
+
+        // Create crackers
+        function createCracker() {
+            const cracker = document.createElement('div');
+            cracker.classList.add('cracker');
+
+            // Random position
+            const posX = Math.random() * 100;
+            const posY = Math.random() * 100;
+
             cracker.style.left = `${posX}%`;
             cracker.style.top = `${posY}%`;
-            
+
             // Random delay
             const delay = Math.random() * 5;
             cracker.style.animationDelay = `${delay}s`;
-            
-            crackersContainer.appendChild(cracker);
-            
-            // Create sparks after cracker explosion
-            setTimeout(() => {
-                createSparks(posX, posY);
-            }, 800);
-            
+
+            diwaliAnimation.appendChild(cracker);
+
             // Remove cracker after animation
             setTimeout(() => {
                 cracker.remove();
             }, 1500);
         }
-        
-        function createSparks(x, y) {
-            const sparkCount = 8 + Math.floor(Math.random() * 8);
-            
-            for (let i = 0; i < sparkCount; i++) {
-                const spark = document.createElement('div');
-                spark.classList.add('spark');
-                
-                spark.style.left = `${x}%`;
-                spark.style.top = `${y}%`;
-                
-                // Random direction and distance
-                const angle = Math.random() * Math.PI * 2;
-                const distance = 20 + Math.random() * 30;
-                const endX = x + Math.cos(angle) * distance;
-                const endY = y + Math.sin(angle) * distance;
-                
-                spark.style.setProperty('--end-x', `${endX}%`);
-                spark.style.setProperty('--end-y', `${endY}%`);
-                
-                // Random delay and duration
-                const delay = Math.random() * 0.5;
-                const duration = 1 + Math.random() * 1;
-                
-                spark.style.animationDelay = `${delay}s`;
-                spark.style.animationDuration = `${duration}s`;
-                
-                crackersContainer.appendChild(spark);
-                
-                // Remove spark after animation
-                setTimeout(() => {
-                    spark.remove();
-                }, (delay + duration) * 1000);
-            }
-        }
-        
-        function createFirework() {
-            const firework = document.createElement('div');
-            firework.classList.add('firework');
-            
-            // Random position and color
-            const posX = Math.random() * 100;
-            const colors = ['#ffcc00', '#ff6b35', '#0d6efd', '#28a745', '#dc3545'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            
-            firework.style.left = `${posX}%`;
-            firework.style.background = color;
-            firework.style.boxShadow = `0 0 10px 2px ${color}`;
-            
-            // Random delay and duration
-            const delay = Math.random() * 2;
-            const duration = 1 + Math.random() * 1;
-            
-            firework.style.animationDelay = `${delay}s`;
-            firework.style.animationDuration = `${duration}s`;
-            
-            crackersContainer.appendChild(firework);
-            
-            // Remove firework after animation
+
+        // Create initial sparkles and crackers
+        for (let i = 0; i < 20; i++) {
             setTimeout(() => {
-                firework.remove();
-            }, (delay + duration) * 1000);
+                createSparkle();
+            }, i * 200);
         }
-        
-        function createCelebration() {
-            celebrationContainer.classList.add('active');
-            
-            // Create confetti
-            for (let i = 0; i < 50; i++) {
-                setTimeout(() => {
-                    createConfetti();
-                }, i * 50);
-            }
-            
-            // Create celebration crackers
-            for (let i = 0; i < 20; i++) {
-                setTimeout(() => {
-                    createCracker();
-                    createFirework();
-                }, i * 100);
-            }
-            
-            // Hide celebration after 3 seconds
+
+        for (let i = 0; i < 10; i++) {
             setTimeout(() => {
-                celebrationContainer.classList.remove('active');
-                celebrationContainer.innerHTML = '';
-            }, 3000);
-        }
-        
-        function createConfetti() {
-            const confetti = document.createElement('div');
-            confetti.classList.add('confetti');
-            
-            // Random position
-            const posX = Math.random() * 100;
-            
-            confetti.style.left = `${posX}%`;
-            confetti.style.top = '-10px';
-            
-            // Random rotation and color
-            const rotation = Math.random() * 360;
-            const colors = ['#ffcc00', '#ff6b35', '#0d6efd', '#28a745', '#dc3545'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            
-            confetti.style.setProperty('--accent-color', color);
-            confetti.style.transform = `rotate(${rotation}deg)`;
-            
-            // Animation
-            const duration = 2 + Math.random() * 2;
-            const delay = Math.random() * 1;
-            
-            confetti.style.animation = `confetti-fall ${duration}s ease-out ${delay}s forwards`;
-            
-            celebrationContainer.appendChild(confetti);
-            
-            // Remove confetti after animation
-            setTimeout(() => {
-                confetti.remove();
-            }, (delay + duration) * 1000);
-        }
-        
-        // Add confetti fall animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes confetti-fall {
-                0% {
-                    transform: translateY(-10px) rotate(0deg);
-                    opacity: 1;
-                }
-                100% {
-                    transform: translateY(100vh) rotate(360deg);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-        
-        // Create crackers and fireworks periodically
-        setInterval(createCracker, 1000);
-        setInterval(createFirework, 1500);
-        
-        // Form submission animation
-        const loginForm = document.getElementById('loginForm');
-        const signinButton = document.getElementById('signinButton');
-        
-        loginForm.addEventListener('submit', function(e) {
-            // Only animate if form is valid
-            if (loginForm.checkValidity()) {
-                signinButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Signing In...';
-                signinButton.disabled = true;
-                
-                // Simulate successful login with celebration
-                setTimeout(() => {
-                    createCelebration();
-                }, 1000);
-            }
-        });
-        
-        // Input focus effects
-        const inputs = document.querySelectorAll('.form-control');
-        inputs.forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.classList.add('focused');
-                // Create a small celebration when focusing on inputs
                 createCracker();
-            });
-            
-            input.addEventListener('blur', function() {
-                if (this.value === '') {
-                    this.parentElement.classList.remove('focused');
+            }, i * 500);
+        }
+
+        // Create sparkles periodically
+        setInterval(createSparkle, 300);
+        setInterval(createCracker, 1000);
+
+        // Form submission
+        const loginForm = document.getElementById('login_form');
+        const loginButton = document.getElementById('loginButton');
+
+        loginForm.addEventListener('submit', function(e) {
+            // Simple validation
+            const email = document.getElementById('id_login').value;
+            const password = document.getElementById('id_password').value;
+
+            if (email && password) {
+                // Create celebration effect on successful login
+                for (let i = 0; i < 30; i++) {
+                    setTimeout(() => {
+                        createSparkle();
+                        createCracker();
+                    }, i * 100);
                 }
-            });
+
+                // Show loading state
+                loginButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Signing In...';
+                loginButton.disabled = true;
+            } else {
+                alert('Please fill in all fields');
+                e.preventDefault();
+            }
         });
     });
 </script>

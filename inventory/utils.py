@@ -7,14 +7,30 @@ def format_currency(amount):
     """Format amount as currency"""
     return f"₹{Decimal(amount):.2f}"
 
+import logging
+from django.core.exceptions import ValidationError
+
+logger = logging.getLogger(__name__)
+
 def send_order_confirmation(order_data):
     """Send order confirmation email to customer"""
     try:
-        subject = 'Order Confirmation - Kannan Crackers'
+        subject = f'Order Confirmation - Kannan Crackers (Order #{order_data.get("orderId", "N/A")})'            
         customer_data = order_data.get('customerData', {})
         
-        if not all(key in customer_data for key in ['fullName', 'email', 'phone', 'deliveryAddress']):
-            raise ValueError("Missing required customer data")
+        required_fields = ['fullName', 'email', 'phone', 'deliveryAddress']
+        missing_fields = [field for field in required_fields if not customer_data.get(field)]
+        
+        if missing_fields:
+            raise ValidationError(f"Missing required customer data: {', '.join(missing_fields)}")
+        
+        # Validate email format
+        if '@' not in customer_data['email']:
+            raise ValidationError("Invalid email format")
+        
+        # Validate phone number (assuming 10 digits)
+        if not customer_data['phone'].isdigit() or len(customer_data['phone']) != 10:
+            raise ValidationError("Invalid phone number format")
             
         # Calculate order total and format cart items
         cart_items = order_data['cartItems']
@@ -51,52 +67,39 @@ def send_order_confirmation(order_data):
         plain_message = render_to_string('inventory/email/order_confirmation.txt', context)
 
         # Send email
-        send_mail(
-            subject=subject,
-            message=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[order_data['customerData']['email']],
-            html_message=html_message,
-            fail_silently=False
-        )
-        
-        return True
+        try:
+            send_mail(
+                subject=subject,
+                message=plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[order_data['customerData']['email']],
+                html_message=html_message,
+                fail_silently=False
+            )
+            logger.info(f"Order confirmation email sent successfully to {order_data['customerData']['email']} for order #{order_data.get('orderId', 'N/A')}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to send order confirmation email to {order_data['customerData']['email']}: {str(e)}")
+            # Re-raise the exception to be handled by the view
+            raise
+            
+    except ValidationError as e:
+        logger.error(f"Validation error in order confirmation email: {str(e)}")
+        raise
         
     except Exception as e:
-        print(f"Failed to send order confirmation email: {str(e)}")
-        return False
+        logger.error(f"Unexpected error in order confirmation email: {str(e)}")
+        raise
 
-    # Prepare email context
-    context = {
-        'customer_name': order_data['customerData']['fullName'],
-        'order_total': format_currency(order_total),
-        'items_html': items_html,
-        'delivery_address': order_data['customerData']['deliveryAddress'],
-        'phone': order_data['customerData']['phone'],
-        'email': order_data['customerData']['email']
-    }
 
-    # Render email templates
-    html_message = render_to_string('inventory/email/order_confirmation.html', context)
-    plain_message = render_to_string('inventory/email/order_confirmation.txt', context)
-
-    # Send email
-    send_mail(
-        subject=subject,
-        message=plain_message,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[order_data['customerData']['email']],
-        html_message=html_message
-    )
 
 def send_stock_alert(product):
     """Send low stock alert to admin"""
     subject = f'Low Stock Alert - {product.name}'
     
     context = {
-        'product_name': product.name,
-        'current_stock': product.stock_quantity,
-        'category': product.category.name
+        'product': product
     }
 
     # Render email templates

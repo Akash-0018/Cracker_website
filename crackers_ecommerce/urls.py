@@ -25,7 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('accounts/', include('accounts.urls')),  # Add this line for profile URLs
-    path('inventory/', include('inventory.urls', namespace='inventory_sub')),
+    path('inventory/', include('inventory.urls', namespace='inventory')),
     path('', login_required(home), name='home'),  # Protected home page
 ]
 

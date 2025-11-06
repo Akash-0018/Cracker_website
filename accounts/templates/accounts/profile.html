@@ -480,7 +480,7 @@
                         </div>
                         <h3 class="user-name">{{ user.get_full_name|default:user.email }}</h3>
                         <p class="user-role">{{ user.get_role_display }}</p>
-                        <a href="{% url 'profile_update' %}" class="btn btn-edit">
+                        <a href="{% url 'accounts:profile_update' %}" class="btn btn-edit">
                             <i class="bi bi-pencil-square me-2"></i> Edit Profile
                         </a>
                     </div>

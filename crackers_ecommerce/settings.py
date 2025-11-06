@@ -48,7 +48,7 @@ INSTALLED_APPS = [
 
 # AllAuth Configuration
 SITE_ID = 1
-LOGIN_URL = '/accounts/login/'
+LOGIN_URL = 'account_login'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 ACCOUNT_LOGIN_METHODS = {'email'}
@@ -92,6 +92,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'accounts.middleware.RoleMiddleware',
 ]
 
 ROOT_URLCONF = 'crackers_ecommerce.urls'

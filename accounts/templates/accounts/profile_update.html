@@ -686,7 +686,7 @@
                     <button type="submit" class="btn-save" id="saveButton">
                         <i class="bi bi-save me-2"></i> Save Changes
                     </button>
-                    <a href="{% url 'profile' %}" class="btn-cancel">
+                    <a href="{% url 'accounts:profile' %}" class="btn-cancel">
                         <i class="bi bi-x-circle me-2"></i> Cancel
                     </a>
                 </div>
@@ -870,7 +870,7 @@
                         
                         // Redirect after celebration
                         setTimeout(() => {
-                            window.location.href = "{% url 'profile' %}";
+                            window.location.href = "{% url 'accounts:profile' %}";
                         }, 3000);
                     }, 1500);
                 }

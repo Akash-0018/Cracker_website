@@ -186,65 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Handle checkout form submission
-    checkoutButton.addEventListener('click', async function() {
-        if (!checkoutForm.checkValidity()) {
-            checkoutForm.classList.add('was-validated');
-            return;
-        }
 
-        const formData = new FormData(checkoutForm);
-            const customerData = {
-                fullName: document.getElementById('fullName').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                deliveryAddress: document.getElementById('deliveryAddress').value,
-                updateProfile: document.getElementById('updateProfile')?.checked || false
-            };        try {
-            const response = await fetch('/inventory/checkout/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    customerData: customerData,
-                    cartItems: cartItems
-                })
-            });
-
-            const data = await response.json();
-            
-            if (data.success) {
-                // Clear cart
-                cartItems = {};
-                updateCartTotal();
-                updateCartCount();
-                renderCartItems();
-
-                // Show success message
-                const modalBody = document.querySelector('.modal-body');
-                modalBody.innerHTML = `
-                    <div class="checkout-success">
-                        <i class="bi bi-check-circle"></i>
-                        <h4>Order Placed Successfully!</h4>
-                        <p>Thank you for your order. We will contact you shortly.</p>
-                        <p>Order Total: ₹${data.orderSummary.total.toFixed(2)}</p>
-                    </div>
-                `;
-                
-                // Change modal footer
-                const modalFooter = document.querySelector('.modal-footer');
-                modalFooter.innerHTML = `
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Continue Shopping</button>
-                `;
-            } else {
-                alert(data.error || 'Failed to place order. Please try again.');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Failed to place order. Please try again.');
-        }
-    });
 
     // Initialize item totals
     document.querySelectorAll('.card').forEach(updateItemTotal);

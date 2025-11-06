@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let totalCartAmount = 0;
     let cartItems = {};
 
-    // Function to update all cart total displays
+    /* -------------------- 🧮 CORE CART UTILITIES -------------------- */
     function updateAllCartTotals(amount) {
         cartTotalElements.forEach(element => {
             element.textContent = amount.toFixed(2);
@@ -17,13 +17,11 @@ document.addEventListener('DOMContentLoaded', function() {
         modalSubtotal.textContent = amount.toFixed(2);
     }
 
-    // Function to update cart items count
     function updateCartCount() {
         const itemCount = Object.values(cartItems).reduce((sum, item) => sum + item.quantity, 0);
         cartItemsCount.textContent = `(${itemCount} items)`;
     }
 
-    // Function to render cart items in modal
     function renderCartItems() {
         cartItemsContainer.innerHTML = '';
         Object.entries(cartItems).forEach(([id, item]) => {
@@ -36,8 +34,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             <p class="mb-0">Quantity: ${item.quantity}</p>
                         </div>
                         <div class="text-end">
-                            <div class="cart-item-price">₹${itemTotal.toFixed(2)}</div>
-                            <button class="btn btn-sm btn-danger remove-item">Remove</button>
+                            <div class="cart-item-price fw-bold text-primary">₹${itemTotal.toFixed(2)}</div>
+                            <button class="btn btn-sm btn-danger remove-item mt-2">
+                                <i class="bi bi-trash"></i> Remove
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -46,63 +46,53 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Update individual item total
     function updateItemTotal(card) {
         const quantity = parseInt(card.querySelector('.quantity-input').value);
         const price = parseFloat(card.querySelector('.price').innerText.replace('₹', ''));
         const totalPrice = (quantity * price).toFixed(2);
-        card.querySelector('.total-price').innerText = totalPrice;
+        const totalElement = card.querySelector('.total-price');
+        if (totalElement) totalElement.innerText = totalPrice;
         updateCartTotal();
     }
 
-    // Update cart total
     function updateCartTotal() {
-        totalCartAmount = Object.values(cartItems).reduce((sum, item) => {
-            return sum + (item.price * item.quantity);
-        }, 0);
+        totalCartAmount = Object.values(cartItems).reduce((sum, item) => sum + (item.price * item.quantity), 0);
         updateAllCartTotals(totalCartAmount);
     }
 
-    // Handle quantity changes
+    /* -------------------- 🔢 QUANTITY CONTROLS -------------------- */
     productGrid.addEventListener('click', function(e) {
         if (e.target.classList.contains('decrease-qty') || e.target.classList.contains('increase-qty')) {
-            const card = e.target.closest('.card');
+            const card = e.target.closest('.product-card');
             const input = card.querySelector('.quantity-input');
             const currentValue = parseInt(input.value);
             const maxStock = parseInt(input.max);
 
             if (e.target.classList.contains('decrease-qty')) {
-                if (currentValue > 1) {
-                    input.value = currentValue - 1;
-                }
+                if (currentValue > 1) input.value = currentValue - 1;
             } else {
-                if (currentValue < maxStock) {
-                    input.value = currentValue + 1;
-                }
+                if (currentValue < maxStock) input.value = currentValue + 1;
             }
+
             updateItemTotal(card);
         }
     });
 
-    // Handle manual quantity input
     productGrid.addEventListener('input', function(e) {
         if (e.target.classList.contains('quantity-input')) {
-            const card = e.target.closest('.card');
+            const card = e.target.closest('.product-card');
             const maxStock = parseInt(e.target.max);
             let value = parseInt(e.target.value) || 1;
-            
-            // Ensure quantity is within valid range
             value = Math.max(1, Math.min(value, maxStock));
             e.target.value = value;
-            
             updateItemTotal(card);
         }
     });
 
-    // Handle add to cart
+    /* -------------------- 🛒 ADD TO CART LOGIC -------------------- */
     productGrid.addEventListener('click', async function(e) {
         if (e.target.classList.contains('add-to-cart') || e.target.parentElement.classList.contains('add-to-cart')) {
-            const card = e.target.closest('.card');
+            const card = e.target.closest('.product-card');
             const productId = card.dataset.productId;
             const quantity = parseInt(card.querySelector('.quantity-input').value);
             const stockElement = card.querySelector('.stock-quantity');
@@ -112,41 +102,23 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const response = await fetch('/inventory/update-stock/', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        product_id: productId,
-                        quantity: quantity
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_id: productId, quantity })
                 });
 
                 const data = await response.json();
-                
                 if (data.success) {
-                    // Update stock display
                     stockElement.innerText = data.new_stock;
-                    
-                    // Update max quantity
                     const quantityInput = card.querySelector('.quantity-input');
                     quantityInput.max = data.new_stock;
-                    
-                    // Disable controls if no stock
+
                     if (data.new_stock === 0) {
                         quantityInput.disabled = true;
                         e.target.disabled = true;
                     }
-                    
-                    // Update low stock styling
-                    if (data.is_low_stock) {
-                        card.classList.add('low-stock');
-                    }
-                    
-                    // Reset quantity input
-                    quantityInput.value = 1;
-                    updateItemTotal(card);
-                    
-                    // Update cart items
+
+                    if (data.is_low_stock) card.classList.add('low-stock');
+
                     if (!cartItems[productId]) {
                         cartItems[productId] = {
                             name: productName,
@@ -154,40 +126,76 @@ document.addEventListener('DOMContentLoaded', function() {
                             price: parseFloat(card.querySelector('.price').innerText.replace('₹', ''))
                         };
                     }
+
                     cartItems[productId].quantity += quantity;
-                    
-                    // Update displays
                     updateCartTotal();
                     updateCartCount();
                     renderCartItems();
 
-                    // Show success toast
-                    const message = `Added ${quantity} ${productName} to cart`;
-                    alert(message);
+                    // 🧨 Animated feedback (Diwali style)
+                    const message = `🎇 Added ${quantity} × ${productName} to cart`;
+                    showToast(message, 'success');
                 } else {
-                    alert(data.error || 'Failed to add items to cart');
+                    showToast(data.error || 'Failed to add items to cart', 'danger');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Failed to update cart. Please try again.');
+                showToast('Failed to update cart. Please try again.', 'danger');
             }
         }
     });
 
-    // Handle remove item from cart
+    /* -------------------- ❌ REMOVE CART ITEM -------------------- */
     cartItemsContainer.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-item')) {
+        if (e.target.classList.contains('remove-item') || e.target.closest('.remove-item')) {
             const cartItem = e.target.closest('.cart-item');
             const itemId = cartItem.dataset.id;
             delete cartItems[itemId];
             updateCartTotal();
             updateCartCount();
             renderCartItems();
+            showToast('Item removed from cart', 'warning');
         }
     });
 
+    /* -------------------- 🎇 TOAST UTILITY -------------------- */
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-bg-${type} border-0 show position-fixed bottom-0 end-0 m-3`;
+        toast.style.zIndex = '3000';
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body fw-semibold">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+    }
 
+    /* -------------------- 🧭 TOUCH DRAG SUPPORT FOR CAROUSEL -------------------- */
+    let isDragging = false;
+    let startX, scrollLeft;
 
-    // Initialize item totals
-    document.querySelectorAll('.card').forEach(updateItemTotal);
+    productGrid.addEventListener('mousedown', (e) => {
+        if (window.innerWidth > 768) return;
+        isDragging = true;
+        startX = e.pageX - productGrid.offsetLeft;
+        scrollLeft = productGrid.scrollLeft;
+        productGrid.classList.add('dragging');
+    });
+
+    productGrid.addEventListener('mouseleave', () => { isDragging = false; });
+    productGrid.addEventListener('mouseup', () => { isDragging = false; productGrid.classList.remove('dragging'); });
+
+    productGrid.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x = e.pageX - productGrid.offsetLeft;
+        const walk = (x - startX) * 1.2;
+        productGrid.scrollLeft = scrollLeft - walk;
+    });
+
+    /* -------------------- 🔄 INITIALIZATION -------------------- */
+    document.querySelectorAll('.product-card').forEach(updateItemTotal);
 });
