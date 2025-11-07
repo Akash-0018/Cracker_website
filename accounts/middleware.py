@@ -14,7 +14,7 @@ class RoleMiddleware:
             request.session['is_approved'] = request.user.is_approved
             
             # Admin portal access control
-            if 'admin' in request.path and request.user.role != 'admin':
+            if 'admin' in request.path and not request.path.startswith('/admin/') and request.user.role != 'admin':
                 messages.error(request, 'Access to admin portal denied.')
                 return redirect('home')
                 

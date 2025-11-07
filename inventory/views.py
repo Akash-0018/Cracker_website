@@ -205,32 +205,132 @@ def admin_dashboard(request):
         'total_products': Product.objects.count(),
         'total_orders': Order.objects.count(),
         'total_revenue': Order.objects.filter(status='delivered').aggregate(Sum('total_amount'))['total_amount__sum'] or 0,
-        'recent_orders': Order.objects.order_by('-created_at')[:5],
+        'recent_orders': Order.objects.order_by('-created_at')[:10],
         'low_stock_products': Product.objects.filter(stock_quantity__lt=10)
     }
     return render(request, 'inventory/admin_dashboard.html', context)
+
+@admin_required
+def dashboard_data(request):
+    data = {
+        'total_users': CustomUser.objects.count(),
+        'total_products': Product.objects.count(),
+        'total_orders': Order.objects.count(),
+        'total_revenue': Order.objects.filter(status='delivered').aggregate(Sum('total_amount'))['total_amount__sum'] or 0,
+        'recent_orders': list(Order.objects.order_by('-created_at')[:10].values(
+            'id', 'full_name', 'total_amount', 'status'
+        )),
+        'low_stock_products': list(Product.objects.filter(stock_quantity__lt=10).values(
+            'id', 'name', 'stock_quantity'
+        ))
+    }
+    
+    # Add status choices for each order
+    for order in data['recent_orders']:
+        order['status_choices'] = Order.STATUS_CHOICES
+    
+    return JsonResponse(data)
+
+@admin_required
+def update_order_status(request, order_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            order = Order.objects.get(id=order_id)
+            order.status = data['status']
+            order.save()
+            return JsonResponse({'success': True})
+        except (Order.DoesNotExist, KeyError, json.JSONDecodeError):
+            return JsonResponse({'success': False})
+    return JsonResponse({'success': False})
+
+@admin_required
+def order_details(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id)
+        items = order.items.select_related('product').all()
+        html = render_to_string('inventory/order_details.html', {
+            'order': order,
+            'items': items
+        })
+        return JsonResponse({'success': True, 'html': html})
+    except Order.DoesNotExist:
+        return JsonResponse({'success': False})
+
+@admin_required
+def filter_orders(request, status):
+    if status == 'all':
+        orders = Order.objects.all()
+    else:
+        orders = Order.objects.filter(status=status)
+    
+    orders = orders.order_by('-created_at')[:10].values(
+        'id', 'full_name', 'total_amount', 'status'
+    )
+    return JsonResponse({
+        'success': True,
+        'orders': list(orders)
+    })
+
+@admin_required
+def quick_add_stock(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            product = Product.objects.get(id=data['product_id'])
+            product.stock_quantity += int(data['quantity'])
+            product.save()
+            return JsonResponse({'success': True})
+        except (Product.DoesNotExist, KeyError, ValueError, json.JSONDecodeError):
+            return JsonResponse({'success': False})
+    return JsonResponse({'success': False})
 
 @staff_required
 def staff_inventory(request):
     if request.method == 'POST':
         try:
             data = request.POST
+            product_id = data.get('product_id')
             image = request.FILES.get('image')
             
-            product = Product.objects.create(
-                name=data['name'],
-                category_id=data['category'],
-                price=data['price'],
-                stock_quantity=data['stock_quantity'],
-                image=image
-            )
-            return JsonResponse({'success': True, 'product_id': product.id})
+            if product_id:  # Edit existing product
+                product = Product.objects.get(id=product_id)
+                product.name = data['name']
+                product.category_id = data['category']
+                product.price = data['price']
+                product.stock_quantity = data['stock_quantity']
+                if image:
+                    product.image = image
+                product.save()
+            else:  # Create new product
+                product = Product.objects.create(
+                    name=data['name'],
+                    category_id=data['category'],
+                    price=data['price'],
+                    stock_quantity=data['stock_quantity'],
+                    image=image
+                )
+            return JsonResponse({
+                'success': True,
+                'product_id': product.id,
+                'message': 'Product updated successfully' if product_id else 'Product created successfully'
+            })
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     
+    # Handle search
+    search_query = request.GET.get('search', '')
+    products = Product.objects.all()
+    
+    if search_query:
+        products = products.filter(name__icontains=search_query)
+    
+    products = products.order_by('category', 'name')
+    
     context = {
-        'products': Product.objects.all().order_by('category', 'name'),
-        'categories': Category.objects.all()
+        'products': products,
+        'categories': Category.objects.all(),
+        'search_query': search_query
     }
     return render(request, 'inventory/staff_inventory.html', context)
 
@@ -246,13 +346,62 @@ def delete_product(request, product_id):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
+@staff_required
+def get_product(request, product_id):
+    try:
+        product = Product.objects.get(id=product_id)
+        return JsonResponse({
+            'success': True,
+            'product': {
+                'id': product.id,
+                'name': product.name,
+                'category': product.category_id,
+                'price': product.price,
+                'stock_quantity': product.stock_quantity,
+                'image_url': product.image.url if product.image else None
+            }
+        })
+    except Product.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Product not found'
+        })
+
+from django.http import HttpResponse
+from io import BytesIO
+from django.utils import timezone
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+
+@login_required
+@approved_user_required
+def update_order_address(request, order_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            order = Order.objects.get(id=order_id, user=request.user)
+            order.address = data['delivery_address']
+            order.save()
+            return JsonResponse({'success': True})
+        except (Order.DoesNotExist, KeyError, json.JSONDecodeError):
+            return JsonResponse({'success': False})
+    return JsonResponse({'success': False})
+
 @login_required
 @approved_user_required
 def customer_orders(request):
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    # Get orders with related items and products
+    orders = Order.objects.filter(user=request.user).prefetch_related(
+        'items__product'
+    ).order_by('-created_at')
     
-    # Add status colors for badges
+    # Add status colors and process order information
     for order in orders:
+        # Status colors
         if order.status == 'pending':
             order.status_color = 'warning'
         elif order.status == 'processing':
@@ -263,5 +412,149 @@ def customer_orders(request):
             order.status_color = 'success'
         elif order.status == 'cancelled':
             order.status_color = 'danger'
+        
+        # Calculate order statistics
+        order.total_items = sum(item.quantity for item in order.items.all())
+        order.shipping_status = get_shipping_status(order)
     
-    return render(request, 'inventory/customer_orders.html', {'orders': orders})
+    context = {
+        'orders': orders,
+        'total_orders': len(orders),
+        'total_spent': sum(order.total_amount for order in orders if order.status == 'delivered'),
+        'pending_orders': sum(1 for order in orders if order.status == 'pending'),
+        'recent_order': orders.first() if orders else None,
+    }
+    
+    return render(request, 'inventory/customer_orders.html', context)
+
+def get_shipping_status(order):
+    status_info = {
+        'pending': {
+            'message': 'Order received, awaiting confirmation',
+            'progress': 20,
+            'icon': 'bi-box'
+        },
+        'processing': {
+            'message': 'Order is being processed',
+            'progress': 40,
+            'icon': 'bi-gear'
+        },
+        'shipped': {
+            'message': 'Order has been shipped',
+            'progress': 60,
+            'icon': 'bi-truck'
+        },
+        'delivered': {
+            'message': 'Order delivered successfully',
+            'progress': 100,
+            'icon': 'bi-check-circle'
+        },
+        'cancelled': {
+            'message': 'Order has been cancelled',
+            'progress': 0,
+            'icon': 'bi-x-circle'
+        }
+    }
+    return status_info.get(order.status, {})
+
+@login_required
+@approved_user_required
+def generate_invoice(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+        items = order.items.select_related('product').all()
+        
+        # Create PDF
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter)
+        styles = getSampleStyleSheet()
+        elements = []
+        
+        # Title
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            spaceAfter=30,
+            alignment=1  # Center alignment
+        )
+        elements.append(Paragraph("INVOICE", title_style))
+        elements.append(Paragraph("Kannan Crackers", styles['Heading2']))
+        elements.append(Spacer(1, 20))
+        
+        # Order Info
+        order_info = [
+            [Paragraph(f"<b>Invoice #:</b> {order.id}", styles['Normal']),
+             Paragraph(f"<b>Date:</b> {order.created_at.strftime('%B %d, %Y')}", styles['Normal'])],
+            [Paragraph(f"<b>Customer:</b> {order.full_name}", styles['Normal']),
+             Paragraph(f"<b>Status:</b> {order.get_status_display()}", styles['Normal'])],
+            [Paragraph(f"<b>Phone:</b> {order.phone}", styles['Normal']),
+             Paragraph(f"<b>Email:</b> {order.email}", styles['Normal'])],
+            [Paragraph(f"<b>Shipping Address:</b> {order.address}", styles['Normal']), '']
+        ]
+        
+        order_table = Table(order_info, colWidths=[4*inch, 4*inch])
+        order_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('GRID', (0, 0), (-1, -2), 1, colors.black),
+            ('BOX', (0, 0), (-1, -1), 2, colors.black),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+        ]))
+        elements.append(order_table)
+        elements.append(Spacer(1, 20))
+        
+        # Items Table
+        items_data = [['Product', 'Quantity', 'Price', 'Total']]
+        for item in items:
+            items_data.append([
+                item.product.name,
+                str(item.quantity),
+                f"₹{item.price}",
+                f"₹{item.total}"
+            ])
+        items_data.append(['', '', 'Total Amount:', f"₹{order.total_amount}"])
+        
+        items_table = Table(items_data, colWidths=[4*inch, 1.5*inch, 1.5*inch, 1*inch])
+        items_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('GRID', (0, 0), (-1, -2), 1, colors.black),
+            ('BOX', (0, 0), (-1, -1), 2, colors.black),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, -1), (-1, -1), colors.lightgrey),
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+            ('ALIGN', (-2, -1), (-1, -1), 'RIGHT'),
+        ]))
+        elements.append(items_table)
+        
+        # Footer
+        elements.append(Spacer(1, 30))
+        footer_style = ParagraphStyle(
+            'Footer',
+            parent=styles['Normal'],
+            fontSize=8,
+            textColor=colors.grey,
+            alignment=1
+        )
+        elements.append(Paragraph("Thank you for shopping with Kannan Crackers!", footer_style))
+        elements.append(Paragraph(f"Generated on: {timezone.now().strftime('%B %d, %Y %H:%M')}", footer_style))
+        
+        # Build PDF
+        doc.build(elements)
+        
+        # Prepare response
+        pdf = buffer.getvalue()
+        buffer.close()
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="invoice-{order.id}.pdf"'
+        
+        return response
+        
+    except Order.DoesNotExist:
+        return HttpResponse("Order not found", status=404)

@@ -69,7 +69,7 @@
     </div>
 </div>
 
-<!-- Add Product Modal -->
+<!-- Product Modal (Used for both Add and Edit) -->
 <div class="modal fade" id="addProductModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -79,6 +79,7 @@
             </div>
             <form id="addProductForm" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
+                <input type="hidden" name="product_id" value="">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Product Name</label>
@@ -103,6 +104,10 @@
                     <div class="mb-3">
                         <label class="form-label">Product Image</label>
                         <input type="file" class="form-control" name="image" accept="image/*">
+                        <div id="currentImage" class="mt-2 d-none">
+                            <img src="" alt="Current Image" class="img-thumbnail" style="height: 100px">
+                            <p class="text-muted small">Leave empty to keep current image</p>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -118,8 +123,52 @@
 
 {% block extra_js %}
 <script>
+const productModal = new bootstrap.Modal(document.getElementById('addProductModal'));
+const productForm = document.getElementById('addProductForm');
+const modalTitle = document.querySelector('#addProductModal .modal-title');
+const submitBtn = document.querySelector('#addProductModal button[type="submit"]');
+const currentImage = document.getElementById('currentImage');
+
+function resetForm() {
+    productForm.reset();
+    modalTitle.textContent = 'Add New Product';
+    submitBtn.textContent = 'Add Product';
+    currentImage.classList.add('d-none');
+    currentImage.querySelector('img').src = '';
+}
+
 function editProduct(productId) {
-    // Implement edit functionality
+    // Fetch product details
+    fetch(`/inventory/products/${productId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const product = data.product;
+                
+                // Set form values
+                const form = document.getElementById('addProductForm');
+                form.querySelector('input[name="product_id"]').value = product.id;
+                form.querySelector('input[name="name"]').value = product.name;
+                form.querySelector('select[name="category"]').value = product.category;
+                form.querySelector('input[name="price"]').value = product.price;
+                form.querySelector('input[name="stock_quantity"]').value = product.stock_quantity;
+                
+                // Show current image if exists
+                if (product.image_url) {
+                    currentImage.querySelector('img').src = product.image_url;
+                    currentImage.classList.remove('d-none');
+                }
+                
+                // Update modal title and submit button
+                modalTitle.textContent = 'Edit Product';
+                submitBtn.textContent = 'Update Product';
+                
+                // Show modal
+                productModal.show();
+            } else {
+                alert('Error fetching product details');
+            }
+        });
 }
 
 function deleteProduct(productId) {
@@ -140,5 +189,28 @@ function deleteProduct(productId) {
         });
     }
 }
+
+// Reset form when modal is closed
+document.getElementById('addProductModal').addEventListener('hidden.bs.modal', resetForm);
+
+// Handle form submission
+productForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('/inventory/staff/inventory/', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Error saving product');
+        }
+    });
+});
 </script>
 {% endblock %}

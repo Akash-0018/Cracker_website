@@ -2,98 +2,130 @@
 {% load static %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-12">
-            <h2 class="text-light mb-4">Admin Dashboard</h2>
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-white">Admin Dashboard</h2>
+        <div>
+            <button class="btn btn-sm btn-outline-light" id="refreshBtn">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+            <small class="text-light ms-3">Last updated: <span id="last-updated">Just now</span></small>
         </div>
     </div>
-    
-    <div class="row g-4">
-        <!-- Quick Stats -->
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total Users</h5>
-                    <h2 class="card-text">{{ total_users }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total Products</h5>
-                    <h2 class="card-text">{{ total_products }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-dark">
-                <div class="card-body">
-                    <h5 class="card-title">Total Orders</h5>
-                    <h2 class="card-text">{{ total_orders }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Revenue</h5>
-                    <h2 class="card-text">₹{{ total_revenue }}</h2>
-                </div>
-            </div>
-        </div>
 
+    <!-- KPI Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card text-white shadow-lg border-0 rounded-4 bg-gradient-primary">
+                <div class="card-body text-center">
+                    <i class="bi bi-people-fill fs-1 mb-2"></i>
+                    <h6>Total Users</h6>
+                    <h2 id="total-users" class="fw-bold">{{ total_users }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white shadow-lg border-0 rounded-4 bg-gradient-success">
+                <div class="card-body text-center">
+                    <i class="bi bi-box-seam fs-1 mb-2"></i>
+                    <h6>Total Products</h6>
+                    <h2 id="total-products" class="fw-bold">{{ total_products }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-dark shadow-lg border-0 rounded-4 bg-gradient-warning">
+                <div class="card-body text-center">
+                    <i class="bi bi-cart-check fs-1 mb-2"></i>
+                    <h6>Total Orders</h6>
+                    <h2 id="total-orders" class="fw-bold">{{ total_orders }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white shadow-lg border-0 rounded-4 bg-gradient-info">
+                <div class="card-body text-center">
+                    <i class="bi bi-currency-rupee fs-1 mb-2"></i>
+                    <h6>Total Revenue</h6>
+                    <h2 id="total-revenue" class="fw-bold">₹{{ total_revenue }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders and Low Stock -->
+    <div class="row g-4 mt-4">
         <!-- Recent Orders -->
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Recent Orders</h5>
+        <div class="col-lg-8">
+            <div class="card shadow-lg rounded-4 border-0 active-panel">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center rounded-top-4">
+                    <h6 class="mb-0"><i class="bi bi-bag-check"></i> Recent Orders</h6>
+                    <select id="orderFilter" class="form-select form-select-sm w-auto bg-dark text-white border-secondary" onchange="filterOrders(this.value)">
+                        <option value="all">All Orders</option>
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                    </select>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Customer</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for order in recent_orders %}
-                                <tr>
-                                    <td>#{{ order.id }}</td>
-                                    <td>{{ order.customer_name }}</td>
-                                    <td>₹{{ order.amount }}</td>
-                                    <td>
-                                        <span class="badge bg-{{ order.status_color }}">
-                                            {{ order.status }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+
+                <div class="card-body table-responsive">
+                    <table class="table table-hover align-middle mb-0 rounded-3">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Order</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-orders">
+                            {% for order in recent_orders %}
+                            <tr data-id="{{ order.id }}">
+                                <td>#{{ order.id }}</td>
+                                <td>{{ order.full_name }}</td>
+                                <td>₹{{ order.total_amount }}</td>
+                                <td>
+                                    <select class="form-select form-select-sm order-status" data-id="{{ order.id }}">
+                                        <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                                        <option value="confirmed" {% if order.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                                    </select>
+                                </td>
+                                <td>{{ order.created_at|date:"M d, Y" }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary view-details" data-id="{{ order.id }}">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- Low Stock Alert -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Low Stock Alert</h5>
+        <!-- Low Stock Section -->
+        <div class="col-lg-4">
+            <div class="card shadow-lg rounded-4 border-0">
+                <div class="card-header bg-dark text-white rounded-top-4">
+                    <h6 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Low Stock Products</h6>
                 </div>
                 <div class="card-body">
-                    <ul class="list-group">
+                    <ul class="list-group" id="low-stock-list">
                         {% for product in low_stock_products %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ product.name }}
-                            <span class="badge bg-danger rounded-pill">{{ product.stock_quantity }}</span>
+                            <span>{{ product.name }}</span>
+                            <div>
+                                <span class="badge bg-danger">{{ product.stock_quantity }}</span>
+                                <button class="btn btn-sm btn-outline-success ms-2 add-stock-btn" data-id="{{ product.id }}">
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                            </div>
                         </li>
+                        {% empty %}
+                        <li class="list-group-item text-muted text-center">No low stock items 🎉</li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -101,4 +133,196 @@
         </div>
     </div>
 </div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="orderDetailsLabel">Order Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="orderDetailsContent">
+                <div class="text-center text-muted">Loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JS -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const refreshBtn = document.getElementById("refreshBtn");
+    const ordersTable = document.getElementById("recent-orders");
+    const lowStockList = document.getElementById("low-stock-list");
+    const lastUpdated = document.getElementById("last-updated");
+
+    // Fetch dashboard data
+    function fetchDashboardData() {
+        fetch("{% url 'inventory:dashboard_data' %}")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("total-users").textContent = data.total_users;
+                document.getElementById("total-products").textContent = data.total_products;
+                document.getElementById("total-orders").textContent = data.total_orders;
+                document.getElementById("total-revenue").textContent = "₹" + data.total_revenue;
+
+                // Update recent orders table
+                ordersTable.innerHTML = "";
+                data.recent_orders.forEach(order => {
+                    ordersTable.innerHTML += `
+                        <tr data-id="${order.id}">
+                            <td>#${order.id}</td>
+                            <td>${order.full_name}</td>
+                            <td>₹${order.total_amount}</td>
+                            <td>
+                                <select class="form-select form-select-sm order-status" data-id="${order.id}">
+                                    <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                                </select>
+                            </td>
+                            <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary view-details" data-id="${order.id}">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                // Update low stock products
+                lowStockList.innerHTML = "";
+                data.low_stock_products.forEach(p => {
+                    lowStockList.innerHTML += `
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>${p.name}</span>
+                            <div>
+                                <span class="badge bg-danger">${p.stock_quantity}</span>
+                                <button class="btn btn-sm btn-outline-success ms-2 add-stock-btn" data-id="${p.id}">
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                            </div>
+                        </li>
+                    `;
+                });
+
+                lastUpdated.textContent = new Date().toLocaleTimeString();
+            });
+    }
+
+    // Refresh button click
+    refreshBtn.addEventListener("click", fetchDashboardData);
+    setInterval(fetchDashboardData, 30000);
+
+    // Change order status (Pending/Confirmed)
+    document.body.addEventListener("change", function (e) {
+        if (e.target.classList.contains("order-status")) {
+            const orderId = e.target.dataset.id;
+            const status = e.target.value;
+
+            fetch(`{% url 'inventory:update_order_status' 0 %}`.replace('0', orderId), {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}" 
+                },
+                body: JSON.stringify({ status })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    e.target.classList.add("status-updated");
+                    setTimeout(() => e.target.classList.remove("status-updated"), 800);
+                }
+            });
+        }
+    });
+
+    // View order details
+    document.body.addEventListener("click", function (e) {
+        if (e.target.closest(".view-details")) {
+            const orderId = e.target.closest(".view-details").dataset.id;
+            fetch(`{% url 'inventory:order_details' 0 %}`.replace('0', orderId))
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById("orderDetailsContent").innerHTML = data.html;
+                        new bootstrap.Modal(document.getElementById("orderDetailsModal")).show();
+                    }
+                });
+        }
+    });
+
+    // Quick Add Stock
+    document.body.addEventListener("click", function (e) {
+        if (e.target.closest(".add-stock-btn")) {
+            const productId = e.target.closest(".add-stock-btn").dataset.id;
+            const quantity = prompt("Enter quantity to add:");
+            if (quantity && !isNaN(quantity)) {
+                fetch(`{% url 'inventory:quick_add_stock' %}`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}" 
+                    },
+                    body: JSON.stringify({ product_id: productId, quantity })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) fetchDashboardData();
+                });
+            }
+        }
+    });
+
+    // Initial load
+    fetchDashboardData();
+});
+</script>
+
+<style>
+/* Gradients */
+.bg-gradient-primary { background: linear-gradient(135deg, #007bff, #00c6ff); }
+.bg-gradient-success { background: linear-gradient(135deg, #28a745, #7dd56f); }
+.bg-gradient-warning { background: linear-gradient(135deg, #ffc107, #ffda77); }
+.bg-gradient-info { background: linear-gradient(135deg, #17a2b8, #6fc3e0); }
+
+/* Active Orders Panel */
+.active-panel {
+    border-left: 5px solid #007bff;
+    transition: all 0.2s ease-in-out;
+}
+.active-panel:hover {
+    border-left-color: #00c6ff;
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+/* Order status dropdown */
+select.order-status {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    font-weight: 500;
+}
+select.order-status:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+/* Highlight when updated */
+.status-updated {
+    background-color: #e8ffe8 !important;
+    transition: background-color 0.6s ease-out;
+}
+
+/* Card hover effect */
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+</style>
 {% endblock %}
