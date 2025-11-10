@@ -1,0 +1,13 @@
+Django>=4.2.0,<5.0
+Pillow>=10.0.0  # For image handling
+django-crispy-forms>=2.0  # For better form rendering
+python-dotenv>=1.0.0  # For environment variables
+django-allauth>=0.54.0  # For authentication
+whitenoise>=6.5.0  # For serving static files
+gunicorn>=21.2.0  # For production server
+django-debug-toolbar>=4.2.0  # For development debugging
+django-environ>=0.10.0  # For environment variable management
+django-cors-headers>=4.2.0  # For handling CORS
+django-filter>=23.3  # For filtering querysets
+django-storages>=1.14  # For handling file storage
+psycopg2-binary>=2.9.9  # For PostgreSQL support (optional)
