@@ -60,7 +60,9 @@ ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_EMAIL_VERIFICATION = 'none'  # Disable email verification for testing
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http'
 SOCIALACCOUNT_AUTO_SIGNUP = True
-SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_LOGIN_ON_GET = False  # KEY: Prevents auto-redirect to Google on GET request
+
+# Google OAuth Configuration
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': [
@@ -69,8 +71,7 @@ SOCIALACCOUNT_PROVIDERS = {
         ],
         'AUTH_PARAMS': {
             'access_type': 'online',
-        },
-        'OAUTH_PKCE_ENABLED': True,
+        }
     }
 }
 

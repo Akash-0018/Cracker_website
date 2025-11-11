@@ -1,53 +1,264 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #0d6efd;
+        --secondary-color: #ff6b35;
+        --accent-color: #ffcc00;
+        --dark-color: #1a1a2e;
+        --light-color: #f8f9fa;
+        --success-color: #28a745;
+    }
+
+    .stats-container {
+        padding: 40px 20px;
+        background: linear-gradient(135deg, rgba(13, 110, 253, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
+        border-radius: 20px;
+        margin-bottom: 40px;
+    }
+
+    /* Stats Cards */
+    .stat-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        padding: 25px;
+        border: 2px solid transparent;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        border-color: var(--accent-color);
+    }
+
+    .stat-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .stat-icon {
+        font-size: 2.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 60px;
+        flex-shrink: 0;
+    }
+
+    .stat-icon.total-orders {
+        color: var(--primary-color);
+    }
+
+    .stat-icon.total-spent {
+        color: var(--secondary-color);
+    }
+
+    .stat-icon.pending-orders {
+        color: var(--accent-color);
+    }
+
+    .stat-icon.last-status {
+        color: var(--success-color);
+    }
+
+    .stat-label {
+        font-size: 0.95rem;
+        color: #6c757d;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--dark-color);
+        margin-bottom: 10px;
+    }
+
+    .stat-card.total-orders .stat-value {
+        color: var(--primary-color);
+    }
+
+    .stat-card.total-spent .stat-value {
+        color: var(--secondary-color);
+    }
+
+    .stat-card.pending-orders .stat-value {
+        color: var(--accent-color);
+    }
+
+    .stat-card.last-status .stat-value {
+        color: var(--success-color);
+    }
+
+    .stat-change {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 10px;
+    }
+
+    /* Animate on load */
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .stat-card {
+        animation: slideUp 0.6s ease-out forwards;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+    /* Order Status Badge */
+    #order-status-pending { background: linear-gradient(135deg, var(--accent-color), #ffaa00) !important; color: #212529; }
+    #order-status-processing { background: linear-gradient(135deg, var(--primary-color), #0a58ca) !important; color: white; }
+    #order-status-delivered { background: linear-gradient(135deg, var(--success-color), #1e7e34) !important; color: white; }
+    #order-status-cancelled { background: linear-gradient(135deg, #dc3545, #bb2d3b) !important; color: white; }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, rgba(13, 110, 253, 0.05), rgba(255, 107, 53, 0.05));
+        border-radius: 20px;
+        border: 2px dashed rgba(13, 110, 253, 0.2);
+    }
+
+    .empty-state i {
+        color: rgba(13, 110, 253, 0.3);
+        font-size: 4rem;
+        margin-bottom: 20px;
+    }
+
+    .empty-state h4 {
+        color: var(--dark-color);
+        font-weight: 700;
+    }
+
+    .empty-state p {
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-5">
 
     <!-- Stats Row -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white shadow h-100">
-                <div class="card-body text-center">
-                    <h6>Total Orders</h6>
-                    <h2 class="fw-bold">{{ total_orders }}</h2>
+    <div class="stats-container">
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="stat-card total-orders">
+                    <div class="stat-header">
+                        <div class="stat-icon total-orders">
+                            <i class="bi bi-bag"></i>
+                        </div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+                    <div class="stat-value" id="totalOrders">{{ total_orders }}</div>
+                    <div class="stat-change">
+                        <small>All your orders</small>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white shadow h-100">
-                <div class="card-body text-center">
-                    <h6>Total Spent</h6>
-                    <h2 class="fw-bold">₹{{ total_spent }}</h2>
+
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="stat-card total-spent">
+                    <div class="stat-header">
+                        <div class="stat-icon total-spent">
+                            <i class="bi bi-currency-rupee"></i>
+                        </div>
+                        <div class="stat-label">Total Spent</div>
+                    </div>
+                    <div class="stat-value" id="totalSpent">₹{{ total_spent }}</div>
+                    <div class="stat-change">
+                        <small>Amount spent</small>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-dark shadow h-100">
-                <div class="card-body text-center">
-                    <h6>Pending Orders</h6>
-                    <h2 class="fw-bold">{{ pending_orders }}</h2>
+
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="stat-card pending-orders">
+                    <div class="stat-header">
+                        <div class="stat-icon pending-orders">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                        <div class="stat-label">Pending Orders</div>
+                    </div>
+                    <div class="stat-value" id="pendingOrders">{{ pending_orders }}</div>
+                    <div class="stat-change">
+                        <small>Awaiting delivery</small>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-info text-white shadow h-100">
-                <div class="card-body text-center">
-                    <h6>Latest Order Status</h6>
-                    {% if recent_order %}
-                        <h2 class="fw-bold">{{ recent_order.get_status_display }}</h2>
-                    {% else %}
-                        <h2 class="fw-bold">No Orders</h2>
-                    {% endif %}
+
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="stat-card last-status">
+                    <div class="stat-header">
+                        <div class="stat-icon last-status">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                        <div class="stat-label">Latest Status</div>
+                    </div>
+                    <div class="stat-value" id="latestStatus" style="font-size: 1.5rem;">
+                        {% if recent_order %}
+                            {% if recent_order.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% elif recent_order.status == 'processing' %}
+                                <span class="badge bg-info">Processing</span>
+                            {% elif recent_order.status == 'delivered' %}
+                                <span class="badge bg-success">Delivered</span>
+                            {% elif recent_order.status == 'cancelled' %}
+                                <span class="badge bg-danger">Cancelled</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge bg-secondary">No Orders</span>
+                        {% endif %}
+                    </div>
+                    <div class="stat-change">
+                        <small>Current status</small>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-white">My Orders</h2>
-        <a href="{% url 'inventory:home' %}" class="btn btn-lg btn-glow">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="fw-bold text-white mb-2">My Orders</h1>
+            <p class="text-white-50">Track and manage all your purchases</p>
+        </div>
+        <a href="{% url 'inventory:home' %}" class="btn btn-lg" style="background: linear-gradient(135deg, var(--secondary-color), var(--accent-color)); color: white; border: none; font-weight: 600; transition: all 0.3s ease;">
             <i class="bi bi-cart"></i> Continue Shopping
         </a>
     </div>
@@ -56,15 +267,15 @@
         <div class="row g-4">
             {% for order in orders %}
             <div class="col-12">
-                <div class="card shadow-lg border-0 rounded-4">
-                    <div class="card-header bg-dark text-white rounded-top-4">
+                <div class="card shadow-lg border-0 rounded-4" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);">
+                    <div class="card-header" style="background: linear-gradient(135deg, var(--dark-color), #16213e); border-bottom: 3px solid var(--secondary-color);">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h5 class="mb-0">
-                                    Order placed on {{ order.created_at|date:"F d, Y" }}
+                                <h5 class="mb-0 text-white">
+                                    <i class="bi bi-calendar3"></i> Order placed on <strong>{{ order.created_at|date:"F d, Y" }}</strong>
                                 </h5>
                             </div>
-                            <span class="badge fs-6 px-3 py-2 bg-{{ order.status_color }}">
+                            <span class="badge fs-6 px-3 py-2" id="order-status-{{ order.id }}">
                                 {% if order.status == 'pending' %}
                                     <i class="bi bi-hourglass-split"></i> Pending
                                 {% elif order.status == 'processing' %}
@@ -78,50 +289,50 @@
                         </div>
                     </div>
 
-                    <div class="card-body bg-light-subtle">
+                    <div class="card-body">
                         <div class="table-responsive">
                             <table class="table align-middle mb-0">
-                                <thead class="table-dark">
+                                <thead style="background: #f8f9fa;">
                                     <tr>
-                                        <th>Product</th>
-                                        <th>Qty</th>
-                                        <th>Price</th>
-                                        <th>Total</th>
+                                        <th style="color: var(--dark-color); font-weight: 700;">Product</th>
+                                        <th style="color: var(--dark-color); font-weight: 700;">Qty</th>
+                                        <th style="color: var(--dark-color); font-weight: 700;">Price</th>
+                                        <th style="color: var(--dark-color); font-weight: 700;">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for item in order.items.all %}
-                                    <tr>
+                                    <tr style="border-bottom: 1px solid #e9ecef;">
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}"
                                                     class="me-3 rounded" style="width: 50px; height: 50px; object-fit: cover;">
-                                                {{ item.product.name }}
+                                                <span style="color: var(--dark-color); font-weight: 500;">{{ item.product.name }}</span>
                                             </div>
                                         </td>
-                                        <td>{{ item.quantity }}</td>
-                                        <td>₹{{ item.price }}</td>
-                                        <td><strong>₹{{ item.total }}</strong></td>
+                                        <td style="color: var(--dark-color);">{{ item.quantity }}</td>
+                                        <td style="color: var(--dark-color);">₹{{ item.price }}</td>
+                                        <td><strong style="color: var(--secondary-color);">₹{{ item.total }}</strong></td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
-                                <tfoot>
+                                <tfoot style="background: linear-gradient(135deg, rgba(13, 110, 253, 0.05), rgba(255, 107, 53, 0.05));">
                                     <tr>
-                                        <td colspan="3" class="text-end fw-semibold">Total Amount:</td>
-                                        <td><strong>₹{{ order.total_amount }}</strong></td>
+                                        <td colspan="3" class="text-end fw-semibold" style="color: var(--dark-color);">Total Amount:</td>
+                                        <td><strong style="color: var(--secondary-color); font-size: 1.2rem;">₹{{ order.total_amount }}</strong></td>
                                     </tr>
                                 </tfoot>
                             </table>
                         </div>
 
                         <!-- Delivery Address -->
-                        <div class="mt-4">
-                            <h6 class="fw-semibold mb-2">
-                                <i class="bi bi-geo-alt"></i> Delivery Address
+                        <div class="mt-4 p-4" style="background: linear-gradient(135deg, rgba(13, 110, 253, 0.05), rgba(255, 107, 53, 0.05)); border-radius: 12px; border-left: 4px solid var(--primary-color);">
+                            <h6 class="fw-semibold mb-2" style="color: var(--dark-color);">
+                                <i class="bi bi-geo-alt" style="color: var(--secondary-color);"></i> Delivery Address
                             </h6>
                             <div id="address-view-{{ order.id }}">
                                 {% if order.address %}
-                                    <p class="mb-1">{{ order.address }}</p>
+                                    <p class="mb-1" style="color: var(--dark-color);">{{ order.address }}</p>
                                 {% else %}
                                     <p class="text-muted mb-1">No address provided yet.</p>
                                 {% endif %}
@@ -148,7 +359,7 @@
 
                         {% if order.status == 'delivered' %}
                         <div class="mt-4">
-                            <button class="btn btn-primary" onclick="downloadInvoice({{ order.id }})">
+                            <button class="btn" style="background: linear-gradient(135deg, var(--primary-color), #0a58ca); color: white; border: none; font-weight: 600;" onclick="downloadInvoice({{ order.id }})">
                                 <i class="bi bi-download"></i> Download Invoice
                             </button>
                         </div>
@@ -160,11 +371,11 @@
         </div>
 
     {% else %}
-        <div class="text-center py-5">
-            <i class="bi bi-bag-x display-1 text-muted"></i>
+        <div class="empty-state">
+            <i class="bi bi-bag-x"></i>
             <h4 class="mt-3 fw-bold">No Orders Yet</h4>
             <p class="text-muted">Start shopping to see your orders here!</p>
-            <a href="{% url 'inventory:home' %}" class="btn btn-primary px-4 py-2">
+            <a href="{% url 'inventory:home' %}" class="btn mt-3" style="background: linear-gradient(135deg, var(--secondary-color), var(--accent-color)); color: white; border: none; font-weight: 600; padding: 10px 30px;">
                 <i class="bi bi-cart"></i> Shop Now
             </a>
         </div>
@@ -210,33 +421,14 @@ function saveAddress(orderId) {
 function downloadInvoice(orderId) {
     window.location.href = `/inventory/orders/${orderId}/invoice/`;
 }
-</script>
 
-<style>
-.bg-light-subtle {
-    background-color: rgba(255, 255, 255, 0.05);
-}
-.btn-glow {
-    border: 2px solid #fff;
-    color: #fff !important;
-    font-weight: 600;
-    transition: all 0.3s ease-in-out;
-}
-.btn-glow:hover {
-    background: #fff;
-    color: #000 !important;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
-}
-.badge.bg-pending { background-color: #ffc107 !important; color: #212529; }
-.badge.bg-processing { background-color: #17a2b8 !important; }
-.badge.bg-delivered { background-color: #28a745 !important; }
-.badge.bg-cancelled { background-color: #dc3545 !important; }
-.card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-}
-</style>
+// Apply status badge colors dynamically
+document.addEventListener('DOMContentLoaded', function() {
+    const orders = document.querySelectorAll('[id^="order-status-"]');
+    orders.forEach(badge => {
+        const status = badge.textContent.trim().toLowerCase().split(' ')[1];
+        badge.id = `order-status-${status}`;
+    });
+});
+</script>
 {% endblock %}
