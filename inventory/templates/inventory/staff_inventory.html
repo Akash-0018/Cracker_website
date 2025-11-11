@@ -1,124 +1,326 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<style>
+:root {
+  --diwali-gold: #ffd700;
+  --diwali-orange: #ff8c00;
+  --diwali-red: #ff4d4d;
+  --diwali-green: #28a745;
+  --diwali-blue: #0f172a;
+  --diwali-pink: #ff69b4;
+}
+
+body {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: #fff;
+  min-height: 100vh;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Page title */
+h2.text-light {
+  background: linear-gradient(90deg, var(--diwali-gold), var(--diwali-orange));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(255, 165, 0, 0.4);
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: clamp(1.6rem, 4vw, 2.3rem);
+}
+
+/* Card styling */
+.card {
+  background: rgba(255, 255, 255, 0.98);
+  color: #1a1a2e;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.08);
+  border: none;
+  transition: all 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(255, 215, 0, 0.25);
+}
+
+/* Card header with glowing accent */
+.card-header {
+  background: linear-gradient(90deg, var(--diwali-orange), var(--diwali-gold));
+  color: #1a1a2e;
+  font-weight: 600;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, var(--diwali-orange), var(--diwali-gold));
+  border: none;
+  color: #1a1a2e;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--diwali-gold), var(--diwali-orange));
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+}
+
+.btn-warning, .btn-danger {
+  border: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.btn-warning:hover {
+  background: linear-gradient(135deg, #ffc107, #ff8c00);
+  color: #1a1a2e;
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+}
+.btn-danger:hover {
+  background: linear-gradient(135deg, var(--diwali-red), var(--diwali-pink));
+  color: #fff;
+  box-shadow: 0 0 12px rgba(255, 77, 77, 0.6);
+}
+
+/* Table Styling */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table thead {
+  background: linear-gradient(90deg, var(--diwali-orange), var(--diwali-gold));
+  color: #1a1a2e;
+  font-weight: 600;
+  font-size: clamp(0.8rem, 1.8vw, 1rem);
+}
+.table tbody tr:hover {
+  background-color: rgba(255, 215, 0, 0.08);
+  transition: all 0.3s ease;
+}
+.table td, .table th {
+  vertical-align: middle;
+  text-align: center;
+  padding: 0.75rem;
+  word-break: break-word;
+}
+
+/* Badge glow */
+.badge.bg-success {
+  background: linear-gradient(135deg, var(--diwali-green), #7dff9f);
+  color: #0f172a;
+}
+.badge.bg-danger {
+  background: linear-gradient(135deg, var(--diwali-red), var(--diwali-pink));
+  color: #fff;
+}
+
+/* Modal styling */
+.modal-content {
+  background: rgba(26, 26, 46, 0.97);
+  border: 1px solid var(--diwali-orange);
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(255, 165, 0, 0.3);
+}
+.modal-header {
+  background: linear-gradient(90deg, var(--diwali-orange), var(--diwali-gold));
+  color: #1a1a2e;
+  font-weight: 700;
+}
+.form-control, .form-select {
+  border: 1px solid var(--diwali-orange);
+  background-color: #fff;
+  color: #1a1a2e;
+  border-radius: 8px;
+}
+.form-control:focus, .form-select:focus {
+  box-shadow: 0 0 8px rgba(255, 165, 0, 0.5);
+  border-color: var(--diwali-gold);
+}
+
+/* Image hover */
+.img-thumbnail {
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+.img-thumbnail:hover {
+  border: 2px solid var(--diwali-orange);
+  box-shadow: 0 0 10px rgba(255, 165, 0, 0.4);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .table thead { display: none; }
+  .table, .table tbody, .table tr, .table td {
+    display: block;
+    width: 100%;
+  }
+  .table tr {
+    background: rgba(255,255,255,0.97);
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.1);
+    overflow: hidden;
+  }
+  .table td {
+    text-align: left;
+    padding: 10px 20px;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+  }
+  .table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--diwali-orange);
+  }
+  .img-thumbnail {
+    width: 60px;
+    height: 60px;
+  }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-12">
-            <h2 class="text-light mb-4">Inventory Management</h2>
-        </div>
-    </div>
+{% if user.is_authenticated %}
+<div class="container py-5">
+  <h2 class="text-light">✨ Inventory Management ✨</h2>
 
-    <div class="row">
-        <div class="col-12 mb-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Product List</h5>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
-                        <i class="bi bi-plus-lg"></i> Add Product
-                    </button>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Image</th>
-                                    <th>Name</th>
-                                    <th>Category</th>
-                                    <th>Price</th>
-                                    <th>Stock</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for product in products %}
-                                <tr>
-                                    <td>
-                                        <img src="{{ product.image.url }}" alt="{{ product.name }}" 
-                                             class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
-                                    </td>
-                                    <td>{{ product.name }}</td>
-                                    <td>{{ product.category.name }}</td>
-                                    <td>₹{{ product.price }}</td>
-                                    <td>{{ product.stock_quantity }}</td>
-                                    <td>
-                                        {% if product.is_low_stock %}
-                                        <span class="badge bg-danger">Low Stock</span>
-                                        {% else %}
-                                        <span class="badge bg-success">In Stock</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-warning" onclick="editProduct({{ product.id }})">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-danger" onclick="deleteProduct({{ product.id }})">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="card shadow-lg border-0">
+    <div class="card-header">
+      <h5 class="mb-0"><i class="bi bi-box-seam"></i> Product List</h5>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
+        <i class="bi bi-plus-lg"></i> Add Product
+      </button>
     </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in products %}
+            <tr>
+              <td data-label="Image"><img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;"></td>
+              <td data-label="Name">{{ product.name }}</td>
+              <td data-label="Category">{{ product.category.name }}</td>
+              <td data-label="Price">₹{{ product.price }}</td>
+              <td data-label="Stock">{{ product.stock_quantity }}</td>
+              <td data-label="Status">
+                {% if product.is_low_stock %}
+                <span class="badge bg-danger">Low Stock</span>
+                {% else %}
+                <span class="badge bg-success">In Stock</span>
+                {% endif %}
+              </td>
+              <td data-label="Actions">
+                <button class="btn btn-sm btn-warning" onclick="editProduct(this.dataset.productId)" data-product-id="{{ product.id }}"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-danger" onclick="deleteProduct(this.dataset.productId)" data-product-id="{{ product.id }}"><i class="bi bi-trash"></i></button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
+{% else %}
+<!-- Login Required Message -->
+<div class="container py-5">
+  <div class="card shadow-lg border-0" style="border-left: 5px solid var(--diwali-orange); text-align: center;">
+    <div class="card-body py-5">
+      <i class="bi bi-lock-fill" style="font-size: 4rem; color: var(--diwali-orange); margin-bottom: 1rem; display: block;"></i>
+      <h3 style="color: var(--diwali-gold); margin-bottom: 1rem;">Access Restricted</h3>
+      <p style="font-size: 1.1rem; color: #666; margin-bottom: 2rem;">
+        You need to be logged in to access the Inventory Management page.
+      </p>
+      <a href="{% url 'account_login' %}" class="btn btn-lg" style="background: linear-gradient(135deg, var(--diwali-orange), var(--diwali-gold)); color: #1a1a2e; border: none; font-weight: 600; padding: 0.7rem 2rem;">
+        <i class="bi bi-box-arrow-in-right"></i> Login Now
+      </a>
+      <p style="margin-top: 1.5rem; color: #999; font-size: 0.95rem;">
+        Don't have an account? 
+        <a href="{% url 'account_signup' %}" style="color: var(--diwali-orange); text-decoration: none; font-weight: 600;">
+          Sign Up Here
+        </a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endif %}
 
-<!-- Product Modal (Used for both Add and Edit) -->
+<!-- Add/Edit Modal -->
 <div class="modal fade" id="addProductModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add New Product</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Product</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="addProductForm" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="product_id" value="">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Product Name</label>
+              <input type="text" class="form-control" name="name" required>
             </div>
-            <form id="addProductForm" method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="hidden" name="product_id" value="">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Product Name</label>
-                        <input type="text" class="form-control" name="name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Category</label>
-                        <select class="form-select" name="category" required>
-                            {% for category in categories %}
-                            <option value="{{ category.id }}">{{ category.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Price</label>
-                        <input type="number" class="form-control" name="price" step="0.01" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Stock Quantity</label>
-                        <input type="number" class="form-control" name="stock_quantity" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Product Image</label>
-                        <input type="file" class="form-control" name="image" accept="image/*">
-                        <div id="currentImage" class="mt-2 d-none">
-                            <img src="" alt="Current Image" class="img-thumbnail" style="height: 100px">
-                            <p class="text-muted small">Leave empty to keep current image</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Product</button>
-                </div>
-            </form>
+            <div class="col-md-6">
+              <label class="form-label">Category</label>
+              <select class="form-select" name="category" required>
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Price</label>
+              <input type="number" class="form-control" name="price" step="0.01" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Stock Quantity</label>
+              <input type="number" class="form-control" name="stock_quantity" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Product Image</label>
+              <input type="file" class="form-control" name="image" accept="image/*">
+              <div id="currentImage" class="mt-2 d-none text-center">
+                <img src="" alt="Current Image" class="img-thumbnail" style="height: 100px">
+                <p class="text-muted small">Leave empty to keep current image</p>
+              </div>
+            </div>
+          </div>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Product</button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
@@ -130,86 +332,62 @@ const submitBtn = document.querySelector('#addProductModal button[type="submit"]
 const currentImage = document.getElementById('currentImage');
 
 function resetForm() {
-    productForm.reset();
-    modalTitle.textContent = 'Add New Product';
-    submitBtn.textContent = 'Add Product';
-    currentImage.classList.add('d-none');
-    currentImage.querySelector('img').src = '';
+  productForm.reset();
+  modalTitle.textContent = 'Add New Product';
+  submitBtn.textContent = 'Add Product';
+  currentImage.classList.add('d-none');
+  currentImage.querySelector('img').src = '';
 }
 
 function editProduct(productId) {
-    // Fetch product details
-    fetch(`/inventory/products/${productId}/`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const product = data.product;
-                
-                // Set form values
-                const form = document.getElementById('addProductForm');
-                form.querySelector('input[name="product_id"]').value = product.id;
-                form.querySelector('input[name="name"]').value = product.name;
-                form.querySelector('select[name="category"]').value = product.category;
-                form.querySelector('input[name="price"]').value = product.price;
-                form.querySelector('input[name="stock_quantity"]').value = product.stock_quantity;
-                
-                // Show current image if exists
-                if (product.image_url) {
-                    currentImage.querySelector('img').src = product.image_url;
-                    currentImage.classList.remove('d-none');
-                }
-                
-                // Update modal title and submit button
-                modalTitle.textContent = 'Edit Product';
-                submitBtn.textContent = 'Update Product';
-                
-                // Show modal
-                productModal.show();
-            } else {
-                alert('Error fetching product details');
-            }
-        });
+  fetch(`/inventory/products/${productId}/`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const product = data.product;
+        productForm.querySelector('input[name="product_id"]').value = product.id;
+        productForm.querySelector('input[name="name"]').value = product.name;
+        productForm.querySelector('select[name="category"]').value = product.category;
+        productForm.querySelector('input[name="price"]').value = product.price;
+        productForm.querySelector('input[name="stock_quantity"]').value = product.stock_quantity;
+
+        if (product.image_url) {
+          currentImage.querySelector('img').src = product.image_url;
+          currentImage.classList.remove('d-none');
+        }
+        modalTitle.textContent = 'Edit Product';
+        submitBtn.textContent = 'Update Product';
+        productModal.show();
+      } else {
+        alert('Error fetching product details');
+      }
+    });
 }
 
 function deleteProduct(productId) {
-    if (confirm('Are you sure you want to delete this product?')) {
-        fetch(`/inventory/products/${productId}/delete/`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Error deleting product');
-            }
-        });
-    }
-}
-
-// Reset form when modal is closed
-document.getElementById('addProductModal').addEventListener('hidden.bs.modal', resetForm);
-
-// Handle form submission
-productForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    
-    fetch('/inventory/staff/inventory/', {
-        method: 'POST',
-        body: formData
+  if (confirm('Are you sure you want to delete this product?')) {
+    fetch(`/inventory/products/${productId}/delete/`, {
+      method: 'DELETE',
+      headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert(data.error || 'Error saving product');
-        }
+      if (data.success) location.reload();
+      else alert('Error deleting product');
+    });
+  }
+}
+
+document.getElementById('addProductModal').addEventListener('hidden.bs.modal', resetForm);
+
+productForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const formData = new FormData(productForm);
+  fetch('/inventory/staff/inventory/', { method: 'POST', body: formData })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) location.reload();
+      else alert(data.error || 'Error saving product');
     });
 });
 </script>

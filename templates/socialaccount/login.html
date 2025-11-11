@@ -26,13 +26,7 @@
         padding: 20px;
     }
 
-    .navbar {
-        display: none;
-    }
-
-    .footer {
-        display: none;
-    }
+    .navbar, .footer { display: none; }
 
     .oauth-container {
         background: rgba(255, 255, 255, 0.95);
@@ -127,14 +121,14 @@
     }
 
     .oauth-provider-icon {
-        width: 40px;
-        height: 40px;
-        margin-right: 10px;
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
         vertical-align: middle;
     }
 
     .loading-spinner {
-        display: inline-block;
+        display: none;
         width: 20px;
         height: 20px;
         border: 3px solid rgba(255, 140, 0, 0.3);
@@ -148,16 +142,13 @@
         to { transform: rotate(360deg); }
     }
 
-    /* Responsive */
     @media (max-width: 576px) {
         .oauth-container {
             padding: 30px 20px;
             max-width: 90%;
         }
 
-        .oauth-title {
-            font-size: 1.5rem;
-        }
+        .oauth-title { font-size: 1.5rem; }
 
         .oauth-button {
             padding: 12px 20px;
@@ -171,18 +162,22 @@
 <div class="oauth-container">
     <div class="oauth-icon">🔐</div>
     <h1 class="oauth-title">Connecting Your Account</h1>
-    <p class="oauth-subtitle">You're about to sign in using a third-party account from Google.</p>
+    <p class="oauth-subtitle">Sign in securely using your Google account.</p>
     
     <div class="oauth-info">
         <strong>What happens next?</strong>
-        <p style="margin: 8px 0 0 0;">We'll securely connect your Google account and save your preferences for faster checkout and better recommendations.</p>
+        <p style="margin: 8px 0 0 0;">
+            We'll verify your Google account and check your role.
+            If you’re an admin, you’ll be redirected to the dashboard;
+            otherwise, you’ll access your user profile.
+        </p>
     </div>
 
-    <form method="post">
+    <form method="post" action="{% url 'google_login' %}">
         {% csrf_token %}
-        <button type="submit" class="oauth-button">
-            <span class="loading-spinner" style="display: none;"></span>
-            <img src="{% static 'images/Google.png' %}" alt="Google" class="oauth-provider-icon" style="width: 20px; height: 20px; margin-right: 8px;">
+        <button type="submit" class="oauth-button" id="google-login-btn">
+            <span class="loading-spinner" id="spinner"></span>
+            <img src="{% static 'images/Google.png' %}" alt="Google" class="oauth-provider-icon">
             Continue with Google
         </button>
     </form>
@@ -197,9 +192,15 @@
 </div>
 
 <script>
-    document.querySelector('form').addEventListener('submit', function() {
-        const spinner = document.querySelector('.loading-spinner');
+    const form = document.querySelector('form');
+    const spinner = document.getElementById('spinner');
+    const button = document.getElementById('google-login-btn');
+
+    form.addEventListener('submit', function(e) {
         spinner.style.display = 'inline-block';
+        button.disabled = true;
+        button.style.opacity = '0.7';
+        button.innerText = 'Signing in...';
     });
 </script>
 {% endblock %}

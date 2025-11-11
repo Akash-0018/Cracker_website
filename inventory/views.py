@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
@@ -11,6 +11,7 @@ from accounts.decorators import admin_required, staff_required, approved_user_re
 from . import utils
 import json
 
+@login_required(login_url='account_login')
 def home(request):
     # Get all active products with their categories
     products = Product.objects.filter(is_active=True).select_related('category')
@@ -30,6 +31,7 @@ def home(request):
 from django.views.decorators.http import require_http_methods
 
 @require_http_methods(["POST"])
+@login_required(login_url='account_login')
 def update_stock(request):
     if request.method == 'POST':
         try:
@@ -60,6 +62,7 @@ def update_stock(request):
 from django.db import transaction
 
 @require_http_methods(["GET", "POST"])
+@login_required(login_url='account_login')
 def checkout(request):
     if request.method == 'GET':
         return JsonResponse({
@@ -199,6 +202,8 @@ def checkout(request):
     })
 
 @admin_required
+@login_required(login_url='account_login')
+@admin_required
 def admin_dashboard(request):
     context = {
         'total_users': CustomUser.objects.count(),
@@ -286,6 +291,8 @@ def quick_add_stock(request):
     return JsonResponse({'success': False})
 
 @staff_required
+@login_required(login_url='account_login')
+@staff_required
 def staff_inventory(request):
     if request.method == 'POST':
         try:
@@ -347,6 +354,8 @@ def delete_product(request, product_id):
         return JsonResponse({'success': False, 'error': str(e)})
 
 @staff_required
+@login_required(login_url='account_login')
+@staff_required
 def get_product(request, product_id):
     try:
         product = Product.objects.get(id=product_id)
@@ -377,7 +386,7 @@ from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
-@login_required
+@login_required(login_url='account_login')
 @approved_user_required
 def update_order_address(request, order_id):
     if request.method == 'POST':
@@ -391,7 +400,7 @@ def update_order_address(request, order_id):
             return JsonResponse({'success': False})
     return JsonResponse({'success': False})
 
-@login_required
+@login_required(login_url='account_login')
 @approved_user_required
 def customer_orders(request):
     # Get orders with related items and products
@@ -459,6 +468,7 @@ def get_shipping_status(order):
 
 @login_required
 @approved_user_required
+@login_required(login_url='account_login')
 def generate_invoice(request, order_id):
     try:
         order = Order.objects.get(id=order_id, user=request.user)
